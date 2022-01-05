@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   View,
   StyleSheet,
+  ScrollView,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {AuthContext} from '../context/AuthContext';
@@ -109,49 +110,49 @@ const SignUpScreen = ({navigation}) => {
 
   return (
     <View style={styles.wrapper}>
-      <View style={styles.form}>
-        <View style={styles.input_wrapper}>
-          <Text style={styles.label}>Nickname</Text>
-          <TextInput
-            onChangeText={val => setForm({...form, nickname: val})}
-            onEndEditing={e => handleNicknameValidation(e.nativeEvent.text)}
-            style={styles.input}
-          />
-          {form.isValidNickname ? null : (
-            <Text style={styles.validation}>{form.nicknameValidation}</Text>
-          )}
+      <ScrollView>
+        <View style={styles.form}>
+          <View style={styles.input_wrapper}>
+            <Text style={styles.label}>Nickname</Text>
+            <TextInput
+              onChangeText={val => setForm({...form, nickname: val})}
+              onEndEditing={e => handleNicknameValidation(e.nativeEvent.text)}
+              style={styles.input}
+            />
+            {form.isValidNickname ? null : (
+              <Text style={styles.validation}>{form.nicknameValidation}</Text>
+            )}
+          </View>
+          <View style={styles.input_wrapper}>
+            <Text style={styles.label}>Email</Text>
+            <TextInput
+              onChangeText={val => setForm({...form, email: val})}
+              onEndEditing={e => handleEmailValidation(e.nativeEvent.text)}
+              style={styles.input}
+            />
+            {form.isValidEmail ? null : (
+              <Text style={styles.validation}>{form.emailValidation}</Text>
+            )}
+          </View>
+          <View style={styles.input_wrapper}>
+            <Text style={styles.label}>Password</Text>
+            <TextInput
+              secureTextEntry={form.secureTextEntry ? true : false}
+              onChangeText={val => setForm({...form, password: val})}
+              onEndEditing={e => handlePasswordValidation(e.nativeEvent.text)}
+              style={styles.input}
+            />
+            {form.isValidPassword ? null : (
+              <Text style={styles.validation}>{form.passwordValidation}</Text>
+            )}
+          </View>
         </View>
-        <View style={styles.input_wrapper}>
-          <Text style={styles.label}>Email</Text>
-          <TextInput
-            onChangeText={val => setForm({...form, email: val})}
-            onEndEditing={e => handleEmailValidation(e.nativeEvent.text)}
-            style={styles.input}
-          />
-          {form.isValidEmail ? null : (
-            <Text style={styles.validation}>{form.emailValidation}</Text>
-          )}
-        </View>
-        <View style={styles.input_wrapper}>
-          <Text style={styles.label}>Password</Text>
-          <TextInput
-            secureTextEntry={form.secureTextEntry ? true : false}
-            onChangeText={val => setForm({...form, password: val})}
-            onEndEditing={e => handlePasswordValidation(e.nativeEvent.text)}
-            style={styles.input}
-          />
-          {form.isValidPassword ? null : (
-            <Text style={styles.validation}>{form.passwordValidation}</Text>
-          )}
-        </View>
-      </View>
+      </ScrollView>
       <TouchableOpacity
         style={styles.button}
         onPress={() => handleSignUp()}
         disabled={
-          !form.nickname || !form.email || !form.password
-            ? true
-            : false
+          !form.nickname || !form.email || !form.password ? true : false
         }>
         <Text style={{color: 'white', textAlign: 'center'}}>Sign Up</Text>
       </TouchableOpacity>

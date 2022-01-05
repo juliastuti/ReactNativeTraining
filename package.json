@@ -19,9 +19,12 @@
     "react": "17.0.2",
     "react-native": "0.66.4",
     "react-native-gesture-handler": "^2.1.0",
+    "react-native-image-picker": "^4.6.0",
     "react-native-safe-area-context": "^3.3.2",
     "react-native-screens": "^3.10.1",
-    "react-native-transition": "^1.1.8"
+    "react-native-transition": "^1.1.8",
+    "react-native-vector-icons": "^9.0.0",
+    "react-native-webview": "^11.15.0"
   },
   "devDependencies": {
     "@babel/core": "^7.12.9",

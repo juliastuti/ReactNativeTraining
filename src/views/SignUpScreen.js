@@ -15,11 +15,9 @@ const SignUpScreen = ({navigation}) => {
     nickname: '',
     email: '',
     password: '',
-    language: '',
     isValidNickname: true,
     isValidEmail: true,
     isValidPassword: true,
-    isValidLanguage: true,
     secureTextEntry: true,
     nicknameValidation: '',
     emailValidation: '',
@@ -87,27 +85,9 @@ const SignUpScreen = ({navigation}) => {
     }
   };
 
-  const handleLanguageValidation = val => {
-    if (!val) {
-      setForm({
-        ...form,
-        isValidLanguage: false,
-        languageValidation: 'Language required',
-      });
-    } else if (val.length > 2) {
-      setForm({
-        ...form,
-        isValidLanguage: false,
-        languageValidation: 'Language cant more than 2',
-      });
-    } else {
-      setForm({...form, isValidLanguage: true, languageValidation: ''});
-    }
-  };
-
   const [state, dispatch] = useContext(AuthContext);
   const handleSignUp = async () => {
-    const url = `https://terraresta.com/app/api/SignUpCtrl/SignUp?login_id=${form.email}&password=${form.password}&nickname=${form.nickname}&language=${form.language}`;
+    const url = `https://terraresta.com/app/api/SignUpCtrl/SignUp?login_id=${form.email}&password=${form.password}&nickname=${form.nickname}`;
     axios.get(url).then(result => {
       if (result.data.status == 1) {
         const user = {
@@ -164,23 +144,12 @@ const SignUpScreen = ({navigation}) => {
             <Text style={styles.validation}>{form.passwordValidation}</Text>
           )}
         </View>
-        <View style={styles.input_wrapper}>
-          <Text style={styles.label}>Language</Text>
-          <TextInput
-            onChangeText={val => setForm({...form, language: val})}
-            onEndEditing={e => handleLanguageValidation(e.nativeEvent.text)}
-            style={styles.input}
-          />
-          {form.isValidLanguage ? null : (
-            <Text style={styles.validation}>{form.languageValidation}</Text>
-          )}
-        </View>
       </View>
       <TouchableOpacity
         style={styles.button}
         onPress={() => handleSignUp()}
         disabled={
-          !form.nickname || !form.email || !form.password || !form.language
+          !form.nickname || !form.email || !form.password
             ? true
             : false
         }>

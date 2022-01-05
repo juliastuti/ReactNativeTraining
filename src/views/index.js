@@ -5,6 +5,8 @@ import SignUpScreen from './SignUpScreen';
 import MessageScreen from './MessageScreen';
 import FeedScreen from './FeedScreen';
 import MyPageScreen from './MyPageScreen';
+import TermConditionScreen from './TermConditionScreen';
+import EditProfileScreen from './EditProfileScreen';
 
 export {
   AuthScreen,
@@ -14,4 +16,6 @@ export {
   MessageScreen,
   FeedScreen,
   MyPageScreen,
+  TermConditionScreen,
+  EditProfileScreen,
 };

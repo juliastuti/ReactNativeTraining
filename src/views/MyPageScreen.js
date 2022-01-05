@@ -1,5 +1,5 @@
 import axios from 'axios';
-import React, {useContext, useState, useEffect} from 'react';
+import React, {useContext, useEffect, useState} from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
   StyleSheet,
@@ -8,17 +8,64 @@ import {
   Image,
   TouchableOpacity,
   SafeAreaView,
+  Platform,
+  PermissionsAndroid,
 } from 'react-native';
-import {AuthContext} from '../context';
 import {ScrollView} from 'react-native-gesture-handler';
+import {CustomButton} from '../components/atoms';
 import {CustomModal, Popup} from '../components/molecules';
-import {CustomButton} from '../components/atoms/CustomButton';
+import {AuthContext} from '../context';
+import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
 
-const MyPageScreen = () => {
+const MyPageScreen = ({navigation}) => {
   const [popup, setPopup] = useState(false);
   const [modal, setModal] = useState(false);
   const [profile, setProfile] = useState({});
   const [user, dispatch] = useContext(AuthContext);
+
+  const requestCameraPermission = async () => {
+    try {
+      const granted = await PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.CAMERA,
+        {
+          title: 'App Camera Permission',
+          message: 'App needs access to your camera ',
+          buttonNeutral: 'Ask Me Later',
+          buttonNegative: 'Cancel',
+          buttonPositive: 'OK',
+        },
+      );
+      if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+        console.log('Camera permission given');
+      } else {
+        console.log('Camera permission denied');
+      }
+    } catch (err) {
+      console.warn(err);
+    }
+  };
+
+  const requestGalleryPermission = async () => {
+    try {
+      const granted = await PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
+        {
+          title: 'App Storage Permission',
+          message: 'App needs access to your storage ',
+          buttonNeutral: 'Ask Me Later',
+          buttonNegative: 'Cancel',
+          buttonPositive: 'OK',
+        },
+      );
+      if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+        console.log('Storage permission given');
+      } else {
+        console.log('Storage permission denied');
+      }
+    } catch (err) {
+      console.warn(err);
+    }
+  };
 
   const handleGetProfile = () => {
     axios
@@ -43,10 +90,42 @@ const MyPageScreen = () => {
         },
       })
       .then(res => {
-        if (res.data.status == 1) {
+        if (res.data.statue == 1) {
           AsyncStorage.removeItem('USER').then(() => {
             dispatch({type: 'LOGOUT'});
           });
+        }
+      });
+  };
+
+  const handleUploadImage = image => {
+    const url = 'https://terraresta.com/app/api/MediaCtrl/ImageUpload';
+    const headers = {
+      Accept: 'application/json',
+      'Content-Type': 'application/x-www-form-urlencoded',
+      'Content-Length': 82,
+    };
+    const data = new FormData();
+    console.log(image.uri);
+    data.append('data', {
+      uri: Platform.OS === 'ios' ? image.uri.replace('file://', '') : image.uri,
+      name: image.fileName,
+      type: image.type,
+    });
+
+    axios
+      .post(url, data, {
+        params: {
+          access_token: user.token,
+          location: 'Profile',
+        },
+        headers: headers,
+      })
+      .then(res => {
+        if (res.data.status === 1) {
+          alert(JSON.stringify(res.data));
+          handleGetProfile();
+          setPopup(!popup);
         }
       });
   };
@@ -55,6 +134,39 @@ const MyPageScreen = () => {
     handleGetProfile();
   }, []);
 
+  const openGallery = () => {
+    const options = {
+      mediaType: 'photo',
+      quality: 1,
+    };
+
+    launchImageLibrary(options, res => {
+      console.log(res);
+      if (res.assets) {
+        handleUploadImage(res.assets[0]);
+      }
+    });
+  };
+
+  const openCamera = () => {
+    const options = {
+      mediaType: 'photo',
+      quality: 1,
+    };
+
+    const storagePermission = requestGalleryPermission();
+
+    const cameraPermission = requestCameraPermission();
+    if (cameraPermission && storagePermission) {
+      launchCamera(options, res => {
+        console.log(res);
+        if (res.assets) {
+          handleUploadImage(res.assets[0]);
+        }
+      });
+    }
+  };
+
   return (
     <SafeAreaView>
       <ScrollView>
@@ -62,8 +174,16 @@ const MyPageScreen = () => {
           {popup && (
             <Popup popup={popup} setPopup={setPopup}>
               <>
-                <CustomButton theme="outline-primary" title="Gallery" />
-                <CustomButton theme="outline-primary" title="Camera" />
+                <CustomButton
+                  theme="outline-primary"
+                  title="Gallery"
+                  onPress={() => openGallery()}
+                />
+                <CustomButton
+                  theme="outline-primary"
+                  title="Camera"
+                  onPress={() => openCamera()}
+                />
                 {profile.imageUrl && (
                   <CustomButton theme="outline-danger" title="Delete" />
                 )}
@@ -95,7 +215,7 @@ const MyPageScreen = () => {
                 </View>
                 <View style={{flex: 1, marginLeft: 4}}>
                   <CustomButton
-                    title="Delete"
+                    title="OK"
                     onPress={() => handleDeleteAccount()}
                     theme="primary"
                   />
@@ -105,8 +225,7 @@ const MyPageScreen = () => {
           )}
           <View style={{display: 'flex', padding: 16, width: '100%'}}>
             <View style={{flexDirection: 'row'}}>
-              <TouchableOpacity
-                onPress={() => !profile.imageUrl && setPopup(!popup)}>
+              <TouchableOpacity onPress={() => setPopup(!popup)}>
                 <Image
                   style={styles.profileimage}
                   source={{
@@ -124,6 +243,7 @@ const MyPageScreen = () => {
                   {profile && profile.password}
                 </Text>
                 <TouchableOpacity
+                  onPress={() => navigation.navigate('EditProfileScreen')}
                   style={{
                     borderColor: '#1644BD',
                     borderStyle: 'solid',
@@ -148,9 +268,13 @@ const MyPageScreen = () => {
             </View>
             <Text style={styles.label}>About Me</Text>
             <Text style={styles.profiledesc}>
-              {profile.aboutMe ? profile.aboutMe : 'Deskripsi di API gak isi'}
+              {profile.aboutMe ? profile.aboutMe : 'No Description'}
             </Text>
-            <CustomButton title="Term & Condition" theme="primary" />
+            <CustomButton
+              title="Term & Condition"
+              theme="primary"
+              onPress={() => navigation.navigate('TermConditionScreen')}
+            />
             <CustomButton
               title="Delete Account"
               theme="outline-danger"
@@ -190,7 +314,7 @@ const styles = StyleSheet.create({
     color: 'black',
   },
   profiledesc: {
-    paddingTop: 20,
+    paddingVertical: 16,
     textAlign: 'justify',
     color: 'black',
   },

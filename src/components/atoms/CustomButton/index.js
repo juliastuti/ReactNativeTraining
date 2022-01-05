@@ -33,7 +33,7 @@ export default CustomButton;
 const styles = StyleSheet.create({
   outlinePrimary: {
     borderColor: '#1644BD',
-    borderWidth: 2,
+    borderWidth: 1,
     padding: 12,
     marginVertical: 4,
     borderRadius: 8,
@@ -41,14 +41,14 @@ const styles = StyleSheet.create({
   primary: {
     borderColor: '#1644BD',
     backgroundColor: '#1644BD',
-    borderWidth: 2,
+    borderWidth: 1,
     padding: 12,
     marginVertical: 4,
     borderRadius: 8,
   },
   outlineDanger: {
     borderColor: '#BB1C2A',
-    borderWidth: 2,
+    borderWidth: 1,
     padding: 12,
     marginVertical: 4,
     borderRadius: 8,
@@ -56,7 +56,7 @@ const styles = StyleSheet.create({
   danger: {
     borderColor: 'transparent',
     backgroundColor: '#BB1C2A',
-    borderWidth: 2,
+    borderWidth: 1,
     padding: 12,
     marginVertical: 4,
     borderRadius: 8,

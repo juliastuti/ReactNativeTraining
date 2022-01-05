@@ -13,24 +13,36 @@ import {
   MessageScreen,
   MyPageScreen,
   SignUpScreen,
+  TermConditionScreen,
+  EditProfileScreen,
 } from './views';
 import {AuthReducer} from './reducers';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 
 const App = () => {
-  const [state, dispatch] = useReducer(AuthReducer, {token: null});
+  const [state, dispatch] = useReducer(AuthReducer, {
+    token: null,
+    userId: null,
+  });
+
   const handleLogout = () => {
-    AsyncStorage.removeItem('TOKEN').then(() => {
+    AsyncStorage.removeItem('USER').then(() => {
       dispatch({type: 'LOGOUT'});
     });
   };
+
   const getToken = () => {
-    AsyncStorage.getItem('TOKEN').then(res => {
-      // console.log(res);
+    AsyncStorage.getItem('USER').then(res => {
       if (res) {
-        dispatch({type: 'RESTORE_TOKEN', token: res});
+        const user = JSON.parse(res);
+        dispatch({
+          type: 'RESTORE_TOKEN',
+          token: user.token,
+          userId: user.userId,
+        });
       }
     });
   };
@@ -39,23 +51,49 @@ const App = () => {
     getToken();
   }, []);
 
-  const HomeNavigator = () => {
+  const HomeNavigator = ({navigation}) => {
     return (
-      <Tab.Navigator>
+      <Tab.Navigator
+        screenOptions={({route}) => ({
+          tabBarIcon: ({color}) => {
+            let iconName;
+
+            if (route.name === 'FeedScreen') {
+              iconName = 'image-multiple';
+            } else if (route.name === 'MessageScreen') {
+              iconName = 'message-text';
+            } else if (route.name === 'MyPageScreen') {
+              iconName = 'account';
+            }
+
+            return <Icon name={iconName} size={24} color={color} />;
+          },
+          tabBarActiveTintColor: '#1644BD',
+          tabBarInactiveTintColor: 'gray',
+        })}>
         <Tab.Screen
           name="FeedScreen"
-          options={{title: 'TrainingApps', headerTitleAlign: 'center'}}
+          options={{
+            title: 'Feed',
+            headerTitle: 'TrainingApps',
+            headerTitleAlign: 'center',
+          }}
           component={FeedScreen}
         />
         <Tab.Screen
           name="MessageScreen"
-          options={{title: 'TrainingApps', headerTitleAlign: 'center'}}
+          options={{
+            title: 'Message',
+            headerTitle: 'TrainingApps',
+            headerTitleAlign: 'center',
+          }}
           component={MessageScreen}
         />
         <Tab.Screen
           name="MyPageScreen"
           options={{
-            title: 'MyPageScreen',
+            title: 'MyPage',
+            headerTitle: 'TrainingApps',
             headerTitleAlign: 'center',
             headerRight: () => (
               <Text
@@ -98,11 +136,23 @@ const App = () => {
               />
             </>
           ) : (
-            <Stack.Screen
-              name="HomeScreen"
-              component={HomeNavigator}
-              options={{headerShown: false}}
-            />
+            <>
+              <Stack.Screen
+                name="HomeScreen"
+                component={HomeNavigator}
+                options={{headerShown: false}}
+              />
+              <Stack.Screen
+                name="TermConditionScreen"
+                component={TermConditionScreen}
+                options={{headerTitle: 'Term & Condition'}}
+              />
+              <Stack.Screen
+                name="EditProfileScreen"
+                component={EditProfileScreen}
+                options={{headerTitle: 'Edit Profile'}}
+              />
+            </>
           )}
         </Stack.Navigator>
       </NavigationContainer>

@@ -68,6 +68,10 @@ const MyPageScreen = ({navigation}) => {
   };
 
   const handleGetProfile = () => {
+    console.log('Request Data Profile Display', {
+      access_token: user.token,
+      user_id: user.userId,
+    });
     axios
       .get('https://terraresta.com/app/api/ProfileCtrl/ProfileDisplay', {
         params: {
@@ -83,6 +87,9 @@ const MyPageScreen = ({navigation}) => {
   };
 
   const handleDeleteAccount = () => {
+    console.log('Request Data Delete Account', {
+      access_token: user.token,
+    });
     axios
       .get('https://terraresta.com/app/api/AccountCtrl/DeleteAccount', {
         params: {
@@ -98,7 +105,43 @@ const MyPageScreen = ({navigation}) => {
       });
   };
 
+  const handleDeleteImage = () => {
+    console.log('Request Data Delete Image', {
+      access_token: user.token,
+      image_id: profile.imageId,
+    });
+
+    const headers = {
+      Accept: 'application/json',
+      'Content-Type': 'application/x-www-form-urlencoded',
+      'Content-Length': 82,
+    };
+    const params = new URLSearchParams();
+    params.append('image_id', profile.imageId);
+
+    axios
+      .post(
+        `https://terraresta.com/app/api/ProfileCtrl/ProfileEdit?access_token=${user.token}`,
+        params,
+        headers,
+      )
+      .then(res => {
+        if (res.data.status === 1) {
+          handleGetProfile();
+          alert('delete success!');
+          setPopup(!popup);
+        } else {
+          alert('delete failed');
+        }
+      });
+  };
+
   const handleUploadImage = image => {
+    console.log('Request Data Image Upload', {
+      access_token: user.token,
+      image: image,
+      location: 'Profile',
+    });
     const url = 'https://terraresta.com/app/api/MediaCtrl/ImageUpload';
     const headers = {
       Accept: 'application/json',
@@ -106,7 +149,6 @@ const MyPageScreen = ({navigation}) => {
       'Content-Length': 82,
     };
     const data = new FormData();
-    console.log(image.uri);
     data.append('data', {
       uri: Platform.OS === 'ios' ? image.uri.replace('file://', '') : image.uri,
       name: image.fileName,
@@ -123,7 +165,7 @@ const MyPageScreen = ({navigation}) => {
       })
       .then(res => {
         if (res.data.status === 1) {
-          alert(JSON.stringify(res.data));
+          // alert(JSON.stringify(res.data));
           handleGetProfile();
           setPopup(!popup);
         }
@@ -185,7 +227,11 @@ const MyPageScreen = ({navigation}) => {
                   onPress={() => openCamera()}
                 />
                 {profile.imageUrl && (
-                  <CustomButton theme="outline-danger" title="Delete" />
+                  <CustomButton
+                    theme="outline-danger"
+                    title="Delete"
+                    onPress={() => handleDeleteImage()}
+                  />
                 )}
               </>
             </Popup>

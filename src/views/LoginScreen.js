@@ -65,13 +65,18 @@ const LoginScreen = ({navigation}) => {
 
   const [state, dispatch] = useContext(AuthContext);
   const handleLogin = async () => {
-    const url = `http://terraresta.com/app/api/LoginCtrl/Login?login_id=${form.email}&password=${form.password}&language=${form.language}`;
+    console.log('Req data Login', {
+      email: form.email,
+      password: form.password,
+    });
+    const url = `http://terraresta.com/app/api/LoginCtrl/Login?login_id=${form.email}&password=${form.password}`;
     axios.get(url).then(result => {
       if (result.data.status == 1) {
         const user = {
           token: result.data.accessToken,
           userId: result.data.userId,
         };
+        console.log('response get profile', result.data);
         AsyncStorage.setItem('USER', JSON.stringify(user)).then(() => {
           dispatch({
             type: 'LOGIN',
@@ -94,6 +99,9 @@ const LoginScreen = ({navigation}) => {
             onChangeText={val => setForm({...form, email: val})}
             onEndEditing={e => handleEmailValidation(e.nativeEvent.text)}
             style={styles.input}
+            autoCapitalize="none"
+            placeholder="Email"
+            keyboardType="email-address"
           />
           {form.isValidEmail ? null : (
             <Text style={styles.validation}>{form.emailValidation}</Text>
@@ -106,6 +114,7 @@ const LoginScreen = ({navigation}) => {
             onChangeText={val => setForm({...form, password: val})}
             onEndEditing={e => handlePasswordValidation(e.nativeEvent.text)}
             style={styles.input}
+            placeholder="Password"
           />
           {form.isValidPassword ? null : (
             <Text style={styles.validation}>{form.passwordValidation}</Text>

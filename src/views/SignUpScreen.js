@@ -88,6 +88,11 @@ const SignUpScreen = ({navigation}) => {
 
   const [state, dispatch] = useContext(AuthContext);
   const handleSignUp = async () => {
+    console.log('Req data SignUp', {
+      email: form.email,
+      password: form.password,
+      nickname: form.nickname,
+    });
     const url = `https://terraresta.com/app/api/SignUpCtrl/SignUp?login_id=${form.email}&password=${form.password}&nickname=${form.nickname}`;
     axios.get(url).then(result => {
       if (result.data.status == 1) {
@@ -118,6 +123,8 @@ const SignUpScreen = ({navigation}) => {
               onChangeText={val => setForm({...form, nickname: val})}
               onEndEditing={e => handleNicknameValidation(e.nativeEvent.text)}
               style={styles.input}
+              autoCapitalize="none"
+              placeholder="Nickname"
             />
             {form.isValidNickname ? null : (
               <Text style={styles.validation}>{form.nicknameValidation}</Text>
@@ -129,6 +136,9 @@ const SignUpScreen = ({navigation}) => {
               onChangeText={val => setForm({...form, email: val})}
               onEndEditing={e => handleEmailValidation(e.nativeEvent.text)}
               style={styles.input}
+              autoCapitalize="none"
+              placeholder="Email"
+              keyboardType="email-address"
             />
             {form.isValidEmail ? null : (
               <Text style={styles.validation}>{form.emailValidation}</Text>
@@ -141,6 +151,7 @@ const SignUpScreen = ({navigation}) => {
               onChangeText={val => setForm({...form, password: val})}
               onEndEditing={e => handlePasswordValidation(e.nativeEvent.text)}
               style={styles.input}
+              placeholder="Password"
             />
             {form.isValidPassword ? null : (
               <Text style={styles.validation}>{form.passwordValidation}</Text>

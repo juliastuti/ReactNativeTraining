@@ -1,14 +1,11 @@
-import React from 'react';
+import React, {useState} from 'react';
 import {StyleSheet, Text, View} from 'react-native';
-import Icon from 'react-native-vector-icons/FontAwesome';
+import {CustomDatePicker} from '../components/atoms';
 
 const FeedScreen = () => {
-  return (
-    <View style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
-      <Text>test icon</Text>
-      <Icon name="feed" size={30} color="blue" />
-    </View>
-  );
+  const [date, setDate] = useState(new Date());
+
+  return <CustomDatePicker date={date} onDateChange={setDate} />;
 };
 
 export default FeedScreen;

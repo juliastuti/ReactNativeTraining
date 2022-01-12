@@ -18,6 +18,7 @@ import {
 } from './views';
 import {AuthReducer} from './reducers';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import getClient from './services/getClient';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -32,6 +33,40 @@ const App = () => {
     AsyncStorage.removeItem('USER').then(() => {
       dispatch({type: 'LOGOUT'});
     });
+  };
+
+  const handleEditProfile = () => {
+    console.log('req edit');
+    const headers = {
+      Accept: 'application/json',
+      'Content-Type': 'application/x-www-form-urlencoded',
+      'Content-Length': 82,
+    };
+
+    const params = new URLSearchParams();
+    params.append('nickname', form.nickname);
+
+    getClient
+      .post(
+        `ProfileCtrl/ProfileEdit?access_token=${user.token}`,
+        params,
+        headers,
+      )
+      .then(res => {
+        if (res.data.status === 1) {
+          navigation.navigate('MyPageScreen');
+          console.log('response edit profile', res.data);
+          AsyncStorage.setItem('UPDATE_PROFILE', JSON.stringify(user)).then(
+            () => {
+              dispatch({
+                type: 'UPDATE_PROFILE',
+                token: res.data.accessToken,
+                userId: res.data.userId,
+              });
+            },
+          );
+        }
+      });
   };
 
   const getToken = () => {
@@ -150,7 +185,22 @@ const App = () => {
               <Stack.Screen
                 name="EditProfileScreen"
                 component={EditProfileScreen}
-                options={{headerTitle: 'Edit Profile'}}
+                options={{
+                  headerTitle: 'Edit Profile',
+                  headerRight: () => (
+                    <Text
+                      onPress={() => handleEditProfile()}
+                      style={{
+                        paddingRight: 16,
+                        color: '#1644BD',
+                        fontWeight: 'bold',
+                        fontSize: 16,
+                      }}>
+                      {' '}
+                      Save
+                    </Text>
+                  ),
+                }}
               />
             </>
           )}

@@ -16,6 +16,7 @@ import {CustomButton} from '../components/atoms';
 import {CustomModal, Popup} from '../components/molecules';
 import {AuthContext} from '../context';
 import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
+import getClient from '../services/getClient';
 
 const MyPageScreen = ({navigation}) => {
   const [popup, setPopup] = useState(false);
@@ -72,8 +73,8 @@ const MyPageScreen = ({navigation}) => {
       access_token: user.token,
       user_id: user.userId,
     });
-    axios
-      .get('https://terraresta.com/app/api/ProfileCtrl/ProfileDisplay', {
+    getClient
+      .get('ProfileCtrl/ProfileDisplay', {
         params: {
           access_token: user.token,
           user_id: user.userId,
@@ -164,8 +165,7 @@ const MyPageScreen = ({navigation}) => {
         headers: headers,
       })
       .then(res => {
-        if (res.data.status === 1) {
-          // alert(JSON.stringify(res.data));
+        if (res.data.status === 1) {          
           handleGetProfile();
           setPopup(!popup);
         }
@@ -283,7 +283,7 @@ const MyPageScreen = ({navigation}) => {
               </TouchableOpacity>
               <View>
                 <Text style={styles.profileemail}>
-                  {profile && profile.email}
+                  {profile && profile.nickname}
                 </Text>
                 <Text style={styles.profilepassword}>
                   {profile && profile.password}

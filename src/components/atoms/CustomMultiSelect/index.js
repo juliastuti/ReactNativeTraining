@@ -10,16 +10,31 @@ const CustomMultiSelect = ({label, value, items, setValue}) => {
 
   return (
     <View style={styles.input_wrapper}>
-      <Icon
-        name="arrow-down-drop-circle-outline"
-        color={'black'}
-        style={styles.pickerIcon}
-      />
-      <View style={styles.border}>
+      <View>
+        <Icon
+          name="arrow-down-drop-circle-outline"
+          color={'black'}
+          style={styles.pickerIcon}
+        />
         <Text style={styles.label}>{label}</Text>
         <MultiSelect
+          styleDropdownMenuSubsection={{
+            backgroundColor: 'transparent',
+            borderBottomColor: 'black',
+            marginRight: -40,
+            borderBottomWidth: 1,
+          }}
+          tagBorderColor="transparent"
+          styleItemsContainer={{
+            backgroundColor: 'transparent',
+            paddingVertical: 12,
+          }}
+          styleInputGroup={{
+            backgroundColor: 'transparent',
+            marginRight: -20,
+          }}
           fixedHeight
-          items={items ? items : [{id: 1, name: 'unknown'}]}
+          items={items ? items : [{id: 'unknown', name: 'unknown'}]}
           uniqueKey="id"
           onSelectedItemsChange={onSelectedItemsChange}
           selectedItems={value}
@@ -43,7 +58,7 @@ const CustomMultiSelect = ({label, value, items, setValue}) => {
 export default CustomMultiSelect;
 
 const styles = StyleSheet.create({
-  input_wrapper: {marginBottom: 20, width: '100%'},
+  input_wrapper: {marginBottom: 20, width: '100%', position: 'relative'},
   label: {
     fontWeight: 'bold',
     fontSize: 14,
@@ -54,8 +69,9 @@ const styles = StyleSheet.create({
   },
   pickerIcon: {
     position: 'absolute',
-    bottom: 15,
-    right: 10,
-    fontSize: 16,
+    top: 33,
+    right: 0,
+    fontSize: 20,
+    zIndex: 0,
   },
 });

@@ -9,8 +9,7 @@ import {
 } from 'react-native';
 import DatePicker from 'react-native-date-picker';
 
-const CustomDatePicker = ({label}) => {
-  const [date, setDate] = useState(new Date());
+const CustomDatePicker = ({label, date, setDate}) => {
   const [open, setOpen] = useState(false);
 
   return (
@@ -18,7 +17,7 @@ const CustomDatePicker = ({label}) => {
       <Text style={styles.label}>{label}</Text>
       <TouchableWithoutFeedback onPress={() => setOpen(true)}>
         <View style={styles.border}>
-          <Text>{date.toString()}</Text>
+          <Text>{date.toISOString().split('T')[0]}</Text>
           <Icon
             name="arrow-down-drop-circle-outline"
             size={20}

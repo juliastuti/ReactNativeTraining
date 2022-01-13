@@ -35,40 +35,6 @@ const App = () => {
     });
   };
 
-  const handleEditProfile = () => {
-    console.log('req edit');
-    const headers = {
-      Accept: 'application/json',
-      'Content-Type': 'application/x-www-form-urlencoded',
-      'Content-Length': 82,
-    };
-
-    const params = new URLSearchParams();
-    params.append('nickname', form.nickname);
-
-    getClient
-      .post(
-        `ProfileCtrl/ProfileEdit?access_token=${user.token}`,
-        params,
-        headers,
-      )
-      .then(res => {
-        if (res.data.status === 1) {
-          navigation.navigate('MyPageScreen');
-          console.log('response edit profile', res.data);
-          AsyncStorage.setItem('UPDATE_PROFILE', JSON.stringify(user)).then(
-            () => {
-              dispatch({
-                type: 'UPDATE_PROFILE',
-                token: res.data.accessToken,
-                userId: res.data.userId,
-              });
-            },
-          );
-        }
-      });
-  };
-
   const getToken = () => {
     AsyncStorage.getItem('USER').then(res => {
       if (res) {
@@ -186,20 +152,7 @@ const App = () => {
                 name="EditProfileScreen"
                 component={EditProfileScreen}
                 options={{
-                  headerTitle: 'Edit Profile',
-                  headerRight: () => (
-                    <Text
-                      onPress={() => handleEditProfile()}
-                      style={{
-                        paddingRight: 16,
-                        color: '#1644BD',
-                        fontWeight: 'bold',
-                        fontSize: 16,
-                      }}>
-                      {' '}
-                      Save
-                    </Text>
-                  ),
+                  headerShown: false,
                 }}
               />
             </>

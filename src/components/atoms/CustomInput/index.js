@@ -1,12 +1,20 @@
 import React from 'react';
 import {StyleSheet, Text, View, TextInput} from 'react-native';
 
-const CustomInput = ({label, isValid, validation, ...props}) => {
+const CustomInput = ({
+  label,
+  isValid,
+  validation,
+  showCounter,
+  counter,
+  ...props
+}) => {
   return (
     <View style={styles.input_wrapper}>
       <Text style={styles.label}>{label}</Text>
       <TextInput style={styles.input} {...props} />
       {!isValid && <Text style={styles.validation}>{validation}</Text>}
+      {showCounter && <Text>{counter}/200</Text>}
     </View>
   );
 };
@@ -26,5 +34,4 @@ const styles = StyleSheet.create({
     color: 'black',
   },
   validation: {color: 'red', fontSize: 10},
-  
 });

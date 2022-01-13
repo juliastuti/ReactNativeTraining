@@ -165,7 +165,7 @@ const MyPageScreen = ({navigation}) => {
         headers: headers,
       })
       .then(res => {
-        if (res.data.status === 1) {          
+        if (res.data.status === 1) {
           handleGetProfile();
           setPopup(!popup);
         }

@@ -1,11 +1,12 @@
-import React, {useState} from 'react';
+import React from 'react';
 import {StyleSheet, Text, View} from 'react-native';
-import {CustomDatePicker} from '../components/atoms';
 
 const FeedScreen = () => {
-  const [date, setDate] = useState(new Date());
-
-  return <CustomDatePicker date={date} onDateChange={setDate} />;
+  return (
+    <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+      <Text>Feed Screen</Text>
+    </View>
+  );
 };
 
 export default FeedScreen;

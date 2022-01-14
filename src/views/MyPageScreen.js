@@ -1,4 +1,3 @@
-import axios from 'axios';
 import React, {useContext, useEffect, useState} from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
@@ -91,8 +90,8 @@ const MyPageScreen = ({navigation}) => {
     console.log('Request Data Delete Account', {
       access_token: user.token,
     });
-    axios
-      .get('https://terraresta.com/app/api/AccountCtrl/DeleteAccount', {
+    getClient
+      .get('AccountCtrl/DeleteAccount', {
         params: {
           access_token: user.token,
         },
@@ -120,9 +119,9 @@ const MyPageScreen = ({navigation}) => {
     const params = new URLSearchParams();
     params.append('image_id', profile.imageId);
 
-    axios
+    getClient
       .post(
-        `https://terraresta.com/app/api/ProfileCtrl/ProfileEdit?access_token=${user.token}`,
+        `ProfileCtrl/ProfileEdit?access_token=${user.token}`,
         params,
         headers,
       )
@@ -143,7 +142,7 @@ const MyPageScreen = ({navigation}) => {
       image: image,
       location: 'Profile',
     });
-    const url = 'https://terraresta.com/app/api/MediaCtrl/ImageUpload';
+    const url = 'MediaCtrl/ImageUpload';
     const headers = {
       Accept: 'application/json',
       'Content-Type': 'application/x-www-form-urlencoded',
@@ -156,7 +155,7 @@ const MyPageScreen = ({navigation}) => {
       type: image.type,
     });
 
-    axios
+    getClient
       .post(url, data, {
         params: {
           access_token: user.token,
@@ -171,10 +170,11 @@ const MyPageScreen = ({navigation}) => {
         }
       });
   };
-
   useEffect(() => {
-    handleGetProfile();
-  }, []);
+    navigation.addListener('focus', () => {
+      handleGetProfile();
+    });
+  }, [navigation]);
 
   const openGallery = () => {
     const options = {

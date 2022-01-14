@@ -6,10 +6,10 @@ export const recidenceItems = [
 ];
 
 export const hobbyItems = [
-  {id: 1, name: 'music'},
-  {id: 2, name: 'writing'},
-  {id: 3, name: 'watching'},
-  {id: 4, name: 'gaming'},
+  {value: 0, label: 'music'},
+  {value: 1, label: 'writing'},
+  {value: 2, label: 'watching'},
+  {value: 3, label: 'gaming'},
 ];
 
 export const personalityItems = [

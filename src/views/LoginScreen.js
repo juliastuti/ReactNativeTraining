@@ -1,4 +1,3 @@
-import axios from 'axios';
 import React, {useContext, useState} from 'react';
 import {
   StyleSheet,
@@ -9,6 +8,7 @@ import {
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {AuthContext} from '../context/AuthContext';
+import getClient from '../services/getClient';
 
 const LoginScreen = ({navigation}) => {
   const [form, setForm] = useState({
@@ -69,25 +69,33 @@ const LoginScreen = ({navigation}) => {
       email: form.email,
       password: form.password,
     });
-    const url = `http://terraresta.com/app/api/LoginCtrl/Login?login_id=${form.email}&password=${form.password}`;
-    axios.get(url).then(result => {
-      if (result.data.status == 1) {
-        const user = {
-          token: result.data.accessToken,
-          userId: result.data.userId,
-        };
-        console.log('response get profile', result.data);
-        AsyncStorage.setItem('USER', JSON.stringify(user)).then(() => {
-          dispatch({
-            type: 'LOGIN',
+
+    const url = 'http://terraresta.com/app/api/LoginCtrl/Login';
+    getClient
+      .get(url, {
+        params: {
+          login_id: form.email,
+          password: form.password,
+        },
+      })
+      .then(result => {
+        if (result.data.status == 1) {
+          const user = {
             token: result.data.accessToken,
             userId: result.data.userId,
+          };
+          console.log('response get profile', result.data);
+          AsyncStorage.setItem('USER', JSON.stringify(user)).then(() => {
+            dispatch({
+              type: 'LOGIN',
+              token: result.data.accessToken,
+              userId: result.data.userId,
+            });
           });
-        });
-      } else {
-        alert(result.data.error.errorMessage);
-      }
-    });
+        } else {
+          alert(result.data.error.errorMessage);
+        }
+      });
   };
 
   return (

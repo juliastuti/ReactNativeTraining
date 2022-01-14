@@ -1,5 +1,4 @@
 import React, {state, useContext, useState} from 'react';
-import axios from 'axios';
 import {
   Text,
   TextInput,
@@ -10,6 +9,7 @@ import {
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {AuthContext} from '../context/AuthContext';
+import getClient from '../services/getClient';
 
 const SignUpScreen = ({navigation}) => {
   const [form, setForm] = useState({
@@ -93,24 +93,33 @@ const SignUpScreen = ({navigation}) => {
       password: form.password,
       nickname: form.nickname,
     });
-    const url = `https://terraresta.com/app/api/SignUpCtrl/SignUp?login_id=${form.email}&password=${form.password}&nickname=${form.nickname}`;
-    axios.get(url).then(result => {
-      if (result.data.status == 1) {
-        const user = {
-          token: result.data.accessToken,
-          userId: result.data.userId,
-        };
-        AsyncStorage.setItem('USER', JSON.stringify(user)).then(() => {
-          dispatch({
-            type: 'SIGN_UP',
+
+    const url = 'https://terraresta.com/app/api/SignUpCtrl/SignUp';
+    getClient
+      .get(url, {
+        params: {
+          login_id: form.email,
+          password: form.password,
+          nickname: form.nickname,
+        },
+      })
+      .then(result => {
+        if (result.data.status == 1) {
+          const user = {
             token: result.data.accessToken,
             userId: result.data.userId,
+          };
+          AsyncStorage.setItem('USER', JSON.stringify(user)).then(() => {
+            dispatch({
+              type: 'SIGN_UP',
+              token: result.data.accessToken,
+              userId: result.data.userId,
+            });
           });
-        });
-      } else {
-        alert(result.data.error.errorMessage);
-      }
-    });
+        } else {
+          alert(result.data.error.errorMessage);
+        }
+      });
   };
 
   return (

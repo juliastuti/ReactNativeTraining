@@ -3,7 +3,6 @@ import {StyleSheet, Text, View, TouchableWithoutFeedback} from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import {ScrollView} from 'react-native-gesture-handler';
 import {SafeAreaView} from 'react-native-safe-area-context';
-import axios from 'axios';
 import {AuthContext} from '../context';
 import {
   CustomInput,
@@ -18,7 +17,7 @@ import {
   jobItems,
   personalityItems,
   recidenceItems,
-} from '../selectItems';
+} from '../selectItems/SelectItem';
 import {CustomModal} from '../components/molecules';
 import getClient from '../services/getClient';
 
@@ -40,7 +39,7 @@ const EditProfileScreen = ({navigation, label}) => {
       setNickname({
         ...nickname,
         isValidNickname: false,
-        nicknameValidation: 'Username must alphanumeric',
+        nicknameValidation: 'Nickname must alphanumeric',
       });
     } else {
       setNickname({...nickname, isValidNickname: true, nicknameValidation: ''});
@@ -64,7 +63,6 @@ const EditProfileScreen = ({navigation, label}) => {
     isValidNickname: true,
     nicknameValidation: '',
   });
-
   const [about, setAbout] = useState({
     about: '',
     isValidAbout: true,
@@ -130,7 +128,9 @@ const EditProfileScreen = ({navigation, label}) => {
       .then(res => {
         if (res.data.status == 1) {
           setNickname({...nickname, nickname: res.data.nickname});
-          setBirthday(new Date(res.data.birthday));
+          setBirthday(
+            res.data.birthday ? new Date(res.data.birthday) : new Date(),
+          );
           setGender(res.data.gender);
           setJob(res.data.job);
           setRecidence(res.data.residence);
@@ -152,9 +152,12 @@ const EditProfileScreen = ({navigation, label}) => {
             gender: res.data.gender,
             job: res.data.job,
             recidence: res.data.residence,
-            hobby: res.data.hobby.split(',').map(item => {
-              return parseInt(item);
-            }),
+            hobby:
+              res.data.hobby.length === 0
+                ? []
+                : res.data.hobby.split(',').map(item => {
+                    return parseInt(item);
+                  }),
             personality: res.data.personality,
             about: res.data.aboutMe,
           });
@@ -291,13 +294,13 @@ const EditProfileScreen = ({navigation, label}) => {
               validation={nickname.nicknameValidation}
             />
             <CustomDatePicker
-              label="Birthday"
+              label="Birtday"
               date={birthday}
               setDate={setBirthday}
             />
             <CustomSelect
-              placeholder="Sex"
               label="Sex"
+              // placeholder="Sex"
               data={genderItems}
               value={gender}
               setValue={setGender}
@@ -305,6 +308,7 @@ const EditProfileScreen = ({navigation, label}) => {
             />
             <CustomSelect
               label="Occupation"
+              // placeholder="Occupation"
               data={jobItems}
               value={job}
               setValue={setJob}
@@ -316,11 +320,13 @@ const EditProfileScreen = ({navigation, label}) => {
               setValue={setRecidence}
             />
             <CustomMultiSelect
-              label="Hobby"
+              title="Hobby"
               items={hobbyItems}
-              value={hobby}
-              setValue={setHobby}
+              selected={hobby}
+              setSelected={setHobby}
+              placeholder="Hobby"
             />
+
             <CustomSelect
               label="Character"
               data={personalityItems}

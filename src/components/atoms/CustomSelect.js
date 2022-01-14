@@ -3,7 +3,7 @@ import {View, Text, StyleSheet} from 'react-native';
 import {Picker} from '@react-native-picker/picker';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
-const CustomSelect = ({value, setValue, data, label}) => {
+const CustomSelect = ({value, setValue, data, label, placeholder}) => {
   return (
     <View style={styles.input_wrapper}>
       <Icon
@@ -16,6 +16,7 @@ const CustomSelect = ({value, setValue, data, label}) => {
         <Picker
           // mode="dropdown"
           selectedValue={value}
+          // defaultNull={setValue === null}
           hideIcon
           onValueChange={(itemValue, itemIndex) => setValue(itemValue)}>
           {data ? (

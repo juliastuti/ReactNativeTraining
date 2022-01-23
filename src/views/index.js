@@ -8,6 +8,7 @@ import MyPageScreen from './MyPageScreen';
 import TermConditionScreen from './TermConditionScreen';
 import EditProfileScreen from './EditProfileScreen';
 import ProfileDetailScreen from './ProfileDetailScreen';
+import PhotoViewerScreen from './PhotoViewerScreen';
 
 export {
   AuthScreen,
@@ -20,4 +21,5 @@ export {
   TermConditionScreen,
   EditProfileScreen,
   ProfileDetailScreen,
+  PhotoViewerScreen,
 };

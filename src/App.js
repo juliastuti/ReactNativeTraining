@@ -16,6 +16,7 @@ import {
   TermConditionScreen,
   EditProfileScreen,
   ProfileDetailScreen,
+  PhotoViewerScreen,
 } from './views';
 import {AuthReducer} from './reducers';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -160,6 +161,11 @@ const App = () => {
                 name="ProfileDetailScreen"
                 component={ProfileDetailScreen}
                 options={{headerTitle: 'Profile Detail'}}
+              />
+              <Stack.Screen
+                name="PhotoViewerScreen"
+                component={PhotoViewerScreen}
+                options={{headerShown: false}}
               />
             </>
           )}

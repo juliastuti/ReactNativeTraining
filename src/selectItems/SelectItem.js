@@ -10,6 +10,7 @@ export const hobbyItems = [
   {value: 1, label: 'writing'},
   {value: 2, label: 'watching'},
   {value: 3, label: 'gaming'},
+  {value: 4, label: 'sleep'},
 ];
 
 export const personalityItems = [
@@ -27,6 +28,6 @@ export const jobItems = [
 ];
 
 export const genderItems = [
-  {label: 'Male', value: 0},
-  {label: 'Female', value: 1},
+  {label: 'Female', value: 0},
+  {label: 'Male', value: 1},
 ];

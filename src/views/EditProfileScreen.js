@@ -58,6 +58,11 @@ const EditProfileScreen = ({navigation, label}) => {
     }
   };
 
+  const [user, dispatch] = useContext(AuthContext);
+  const [modal, setModal] = useState(false);
+  const [counter, setCounter] = useState(0);
+
+  // form data
   const [nickname, setNickname] = useState({
     nickname: '',
     isValidNickname: true,
@@ -68,12 +73,6 @@ const EditProfileScreen = ({navigation, label}) => {
     isValidAbout: true,
     aboutValidation: '',
   });
-
-  const [user, dispatch] = useContext(AuthContext);
-  const [modal, setModal] = useState(false);
-  const [counter, setCounter] = useState(0);
-
-  // form data
   const [birthday, setBirthday] = useState(new Date());
   const [gender, setGender] = useState('');
   const [job, setJob] = useState('');
@@ -96,10 +95,10 @@ const EditProfileScreen = ({navigation, label}) => {
     birthday.getUTCMonth() + 1
   } / ${birthday.getDate() < 10 && 0}${birthday.getDate()}`;
 
-  const handleCancleEdit = () => {
+  const handleCancelEdit = () => {
     if (
       nickname.nickname != current.nickname ||
-      currDate != current.birthday ||
+      // currDate != current.birthday ||
       gender != current.gender ||
       job != current.job ||
       recidence != current.recidence ||
@@ -210,44 +209,32 @@ const EditProfileScreen = ({navigation, label}) => {
       });
   };
 
-  return (
-    <SafeAreaView style={styles.container}>
-      <View
-        style={{
-          display: 'flex',
-          flexDirection: 'row',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          backgroundColor: 'white',
-          paddingRight: 34,
-          paddingVertical: 16,
-        }}>
-        <View
-          style={{
-            justifyContent: 'center',
-            flexDirection: 'row',
-            alignItems: 'center',
-            paddingLeft: 16,
-          }}>
-          <TouchableWithoutFeedback onPress={() => handleCancleEdit()}>
+  useEffect(() => {
+    navigation.setOptions({
+      headerLeft: () => (
+        <View style={{marginRight: 32}}>
+          <TouchableWithoutFeedback onPress={() => handleCancelEdit()}>
             <Icon name="arrow-left" size={23} color="black" />
           </TouchableWithoutFeedback>
+        </View>
+      ),
+      headerRight: () => (
+        <TouchableWithoutFeedback onPress={() => handleEditProfile()}>
           <Text
             style={{
-              fontSize: 19,
-              fontWeight: '500',
-              color: 'black',
-              marginLeft: 30,
+              paddingRight: 16,
+              color: '#1644BD',
+              fontWeight: 'bold',
             }}>
-            Edit Profile
-          </Text>
-        </View>
-        <TouchableWithoutFeedback onPress={() => handleEditProfile()}>
-          <Text style={{fontSize: 16, color: 'blue', fontWeight: '700'}}>
             Save
           </Text>
         </TouchableWithoutFeedback>
-      </View>
+      ),
+    });
+  }, [nickname, birthday, gender, job, recidence, hobby, personality, about]);
+
+  return (
+    <SafeAreaView style={styles.container}>
       <View style={styles.wrapper}>
         {modal && (
           <CustomModal modal={modal} setModal={setModal}>

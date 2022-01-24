@@ -22,21 +22,23 @@ const FeedScreen = () => {
   const [user] = useContext(AuthContext);
   const navigation = useNavigation();
 
-  const handleGetUser = () => {
+  const handleGetUser = loginTime => {
     setIsLoading(true);
     getClient('ProfileFeedCtrl/ProfileFeed', {
       params: {
         access_token: user.token,
-        last_login_time: currentLoginTime,
+        set_login_time: loginTime,
       },
     }).then(res => {
       if (res.data.status === 1) {
         if (res.data.items.length > 0) {
-          setIsLoading(false);
           setNextLoginTime(res.data.lastLoginTime);
           setData([...data, ...res.data.items]);
+          setIsLoading(false);
+          setIsRefreshed(false);
         } else if (res.data.items.length === 0) {
           setIsLoading(false);
+          setIsRefreshed(false);
           return;
         }
       }
@@ -45,26 +47,11 @@ const FeedScreen = () => {
 
   const handleRefresh = () => {
     setIsRefreshed(true);
-    setIsLoading(true);
-    getClient('ProfileFeedCtrl/ProfileFeed', {
-      params: {
-        access_token: user.token,
-        last_login_time: new Date(),
-      },
-    }).then(res => {
-      if (res.data.status === 1) {
-        if (res.data.items.length > 0) {
-          setIsLoading(false);
-          setIsRefreshed(false);
-          setNextLoginTime(res.data.lastLoginTime);
-          setData(res.data.items);
-        }
-      }
-    });
+    handleGetUser(new Date());
   };
 
   useEffect(() => {
-    handleGetUser();
+    handleGetUser(currentLoginTime);
   }, [currentLoginTime]);
 
   const renderItem = ({item}) => {

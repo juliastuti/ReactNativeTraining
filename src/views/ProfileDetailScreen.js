@@ -12,17 +12,21 @@ import {
 import {CustomButton} from '../components/atoms';
 import {CustomModal} from '../components/molecules';
 import {AuthContext} from '../context';
-import {genderItems, hobbyItems, jobItems} from '../selectItems/SelectItem';
+import {
+  genderItems,
+  hobbyItems,
+  jobItems,
+  personalityItems,
+} from '../selectItems/SelectItem';
 import getClient from '../services/getClient';
 
 const ProfileDetailScreen = ({route, navigation}) => {
   const [profile, setProfile] = useState(null);
-  const [user, dispatch] = useContext(AuthContext);
+
+  const [user] = useContext(AuthContext);
   const {userId} = route.params;
-  console.log(userId);
 
   const handleGetUserProfile = () => {
-    console.log(user.token, userId);
     getClient
       .get('ProfileCtrl/ProfileDisplay', {
         params: {
@@ -47,8 +51,10 @@ const ProfileDetailScreen = ({route, navigation}) => {
       return hobbyItems[Number(item)].label;
     });
 
+  console.log('profile');
+
   return (
-    <SafeAreaView style={{flex: 1}}>
+    <SafeAreaView style={{flex: 1, backgroundColor: 'white'}}>
       <ScrollView>
         <View
           style={{
@@ -56,26 +62,32 @@ const ProfileDetailScreen = ({route, navigation}) => {
             position: 'relative',
             paddingBottom: 80,
             display: 'flex',
-            backgroundColor: 'white',
           }}>
           <View style={{position: 'relative', height: 250}}>
-            <TouchableOpacity
-              onPress={() =>
-                navigation.navigate('PhotoViewerScreen', {
-                  userId,
-                  imgUrl: profile.imageUrl,
-                })
-              }>
+            {profile && profile.imageUrl ? (
+              <TouchableOpacity
+                onPress={() =>
+                  navigation.navigate('PhotoViewerScreen', {
+                    userId,
+                    imgUrl: profile.imageUrl,
+                  })
+                }>
+                <Image
+                  style={styles.profileimage}
+                  source={{
+                    uri: profile && profile.imageUrl,
+                  }}
+                />
+              </TouchableOpacity>
+            ) : (
               <Image
                 style={styles.profileimage}
                 source={{
-                  uri: profile
-                    ? profile.imageUrl
-                    : 'https://via.placeholder.com/250',
+                  uri: 'https://via.placeholder.com/500',
                 }}
               />
-            </TouchableOpacity>
-            )
+            )}
+
             <Text
               style={{
                 position: 'absolute',
@@ -88,29 +100,50 @@ const ProfileDetailScreen = ({route, navigation}) => {
               {profile && profile.nickname}
             </Text>
           </View>
-          <Text style={styles.profiledesc}></Text>
           <View style={{flexDirection: 'row', padding: 16}}>
             <View style={{paddingTop: 16}}>
-              {profile
-                ? profile.gender && <Text style={styles.label}>Sex</Text>
-                : ''}
-              {profile
-                ? profile.age && <Text style={styles.label}>Age</Text>
-                : ''}
-              {profile
-                ? profile.job && <Text style={styles.label}>Occupation</Text>
-                : ''}
-              {profile
-                ? profile.hobby && <Text style={styles.label}>Hobby</Text>
-                : ''}
-              {profile
-                ? profile.residence && <Text style={style.label}>Area</Text>
-                : ''}
+              {profile && profile.gender.length != 0 && (
+                <Text style={styles.label}>Sex</Text>
+              )}
+              {profile && profile.hobby.length != 0 && (
+                <Text style={styles.label}>Hobby</Text>
+              )}
+              {profile && profile.age.length != 0 && (
+                <Text style={styles.label}>Age</Text>
+              )}
+              {/* {profile && profile.job.length != 0 && (
+                <Text style={styles.label}>Job</Text>
+              )} */}
+              {profile && profile.personality.length != 0 && (
+                <Text style={styles.label}>Occupation</Text>
+              )}
+              {profile && profile.residence.length != 0 && (
+                <Text style={styles.label}>Area</Text>
+              )}
             </View>
             <View style={{paddingLeft: 60, paddingTop: 16, marginRight: 16}}>
-              <Text style={styles.label}>
-                {profile && genderItems[profile.gender].label}
-              </Text>
+              {profile && profile.gender.length != 0 && (
+                <Text style={styles.label}>
+                  {genderItems[profile.gender].label}
+                </Text>
+              )}
+              {profile && profile.hobby.length != 0 && (
+                <Text style={styles.label}>{userHobby.toString()}</Text>
+              )}
+              {profile && profile.age.length != 0 && (
+                <Text style={styles.label}>{profile.age}</Text>
+              )}
+              {profile && profile.job.length != 0 && (
+                <Text style={styles.label}>{jobItems[profile.job].label}</Text>
+              )}
+              {/* {profile && profile.personality.length != 0 && (
+                <Text style={styles.label}>
+                  {personalityItems[profile.personality].label}
+                </Text>
+              )} */}
+              {profile && profile.residence.length != 0 && (
+                <Text style={styles.label}>{profile.residence}</Text>
+              )}
             </View>
           </View>
         </View>
@@ -128,9 +161,7 @@ const ProfileDetailScreen = ({route, navigation}) => {
         <CustomButton
           title="Send Message"
           theme="primary"
-          onPress={() => {
-            navigation.navigate = 'MessageScreen';
-          }}
+          onPress={() => navigation.navigate('MessageScreen')}
         />
       </View>
     </SafeAreaView>

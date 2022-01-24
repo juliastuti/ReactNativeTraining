@@ -9,6 +9,7 @@ import {
   SafeAreaView,
   Platform,
   PermissionsAndroid,
+  TouchableWithoutFeedback,
 } from 'react-native';
 import {ScrollView} from 'react-native-gesture-handler';
 import {CustomButton} from '../components/atoms';
@@ -170,6 +171,7 @@ const MyPageScreen = ({navigation}) => {
         }
       });
   };
+
   useEffect(() => {
     navigation.addListener('focus', () => {
       handleGetProfile();
@@ -208,6 +210,29 @@ const MyPageScreen = ({navigation}) => {
       });
     }
   };
+
+  const handleLogout = () => {
+    AsyncStorage.removeItem('USER').then(() => {
+      dispatch({type: 'LOGOUT'});
+    });
+  };
+
+  useEffect(() => {
+    navigation.setOptions({
+      headerRight: () => (
+        <TouchableWithoutFeedback onPress={() => handleLogout()}>
+          <Text
+            style={{
+              paddingRight: 16,
+              color: '#1644BD',
+              fontWeight: 'bold',
+            }}>
+            Logout
+          </Text>
+        </TouchableWithoutFeedback>
+      ),
+    });
+  }, []);
 
   return (
     <SafeAreaView>

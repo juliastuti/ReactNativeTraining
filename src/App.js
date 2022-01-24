@@ -31,12 +31,6 @@ const App = () => {
     userId: null,
   });
 
-  const handleLogout = () => {
-    AsyncStorage.removeItem('USER').then(() => {
-      dispatch({type: 'LOGOUT'});
-    });
-  };
-
   const getToken = () => {
     AsyncStorage.getItem('USER').then(res => {
       if (res) {
@@ -98,17 +92,6 @@ const App = () => {
             title: 'MyPage',
             headerTitle: 'TrainingApps',
             headerTitleAlign: 'center',
-            headerRight: () => (
-              <Text
-                onPress={() => handleLogout()}
-                style={{
-                  paddingRight: 16,
-                  color: '#1644BD',
-                  fontWeight: 'bold',
-                }}>
-                Logout
-              </Text>
-            ),
           }}
           component={MyPageScreen}
         />
@@ -154,7 +137,9 @@ const App = () => {
                 name="EditProfileScreen"
                 component={EditProfileScreen}
                 options={{
-                  headerShown: false,
+                  title: 'Edit Profile',
+                  headerTitle: 'Edit Profile',
+                  headerTitleAlign: 'left',
                 }}
               />
               <Stack.Screen

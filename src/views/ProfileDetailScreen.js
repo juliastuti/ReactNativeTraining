@@ -136,7 +136,7 @@ const ProfileDetailScreen = ({route, navigation}) => {
           </View>
           <View
             style={{flexDirection: 'row', padding: 12, position: 'relative'}}>
-            {profile && profile.personality != 0 && (
+            {profile && profile.job != 0 && (
               <Text style={styles.label}>Occupation</Text>
             )}
             {profile && profile.job != 0 && (

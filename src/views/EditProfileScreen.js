@@ -233,6 +233,8 @@ const EditProfileScreen = ({navigation, label}) => {
     });
   }, [nickname, birthday, gender, job, recidence, hobby, personality, about]);
 
+  console.log(genderItems.slice(1));
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.wrapper}>
@@ -287,8 +289,7 @@ const EditProfileScreen = ({navigation, label}) => {
             />
             <CustomSelect
               label="Sex"
-              // placeholder="Sex"
-              data={genderItems.slice(1)}
+              data={genderItems}
               value={gender}
               setValue={setGender}
               selected="Select Gender"

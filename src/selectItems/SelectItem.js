@@ -1,7 +1,7 @@
 export const recidenceItems = [
   {
     value: 0,
-    label: 'Ubud',
+    label: 'Unselected',
   },
   {
     value: 1,
@@ -34,6 +34,10 @@ export const recidenceItems = [
   {
     value: 8,
     label: 'Tuban',
+  },
+  {
+    value: 9,
+    label: 'Ubud',
   },
 ];
 
@@ -104,7 +108,7 @@ export const personalityItems = [
 ];
 
 export const jobItems = [
-  {label: 'Civil servant', value: 0},
+  {label: 'Unselected', value: 0},
   {label: 'Employee', value: 1},
   {label: 'Self Employed', value: 2},
   {label: 'Civil Servant', value: 3},
@@ -118,7 +122,8 @@ export const jobItems = [
   {label: 'IT System WEB', value: 11},
   {label: 'Finance Insurance', value: 12},
   {label: 'Real Estate Related', value: 13},
-  {label: 'Other', value: 14},
+  {label: 'Civil servant', value: 14},
+  {label: 'Other', value: 15},
 ];
 
 export const genderItems = [

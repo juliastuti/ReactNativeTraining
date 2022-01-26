@@ -107,10 +107,10 @@ const ProfileDetailScreen = ({route, navigation}) => {
           </View>
           <View
             style={{flexDirection: 'row', padding: 12, position: 'relative'}}>
-            {profile && profile.gender.length != 0 && (
+            {profile && profile.gender != 0 && (
               <Text style={styles.label}>Sex</Text>
             )}
-            {profile && profile.gender.length != 0 && (
+            {profile && profile.gender != 0 && (
               <Text style={styles.item}>
                 {genderItems[profile.gender].label}
               </Text>
@@ -127,19 +127,19 @@ const ProfileDetailScreen = ({route, navigation}) => {
           </View>
           <View
             style={{flexDirection: 'row', padding: 12, position: 'relative'}}>
-            {profile && profile.age.length != 0 && (
+            {profile && profile.age != 0 && (
               <Text style={styles.label}>Age</Text>
             )}
-            {profile && profile.age.length != 0 && (
+            {profile && profile.age != 0 && (
               <Text style={styles.item}>{profile.age}</Text>
             )}
           </View>
           <View
             style={{flexDirection: 'row', padding: 12, position: 'relative'}}>
-            {profile && profile.personality.length != 0 && (
+            {profile && profile.personality != 0 && (
               <Text style={styles.label}>Occupation</Text>
             )}
-            {profile && profile.job.length != 0 && (
+            {profile && profile.job != 0 && (
               <Text style={styles.item}>{jobItems[profile.job].label}</Text>
             )}
           </View>
@@ -148,7 +148,6 @@ const ProfileDetailScreen = ({route, navigation}) => {
             {profile && profile.residence.length != 0 && (
               <Text style={styles.label}>Area</Text>
             )}
-
             {profile && profile.residence.length != 0 && (
               <Text style={styles.item}>{profile.residence}</Text>
             )}

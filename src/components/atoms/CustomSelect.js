@@ -14,11 +14,11 @@ const CustomSelect = ({value, setValue, data, label, placeholder}) => {
       <Text style={styles.label}>{label}</Text>
       <View style={styles.border}>
         <Picker
-          // mode="dropdown"
           selectedValue={value}
-          // defaultNull={setValue === null}
           hideIcon
-          onValueChange={(itemValue, itemIndex) => setValue(itemValue)}>
+          onValueChange={itemValue => {
+            if (itemValue != '0') setValue(itemValue);
+          }}>
           {data ? (
             data.map((item, i) => {
               return (

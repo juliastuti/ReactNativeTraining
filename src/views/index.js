@@ -9,6 +9,7 @@ import TermConditionScreen from './TermConditionScreen';
 import EditProfileScreen from './EditProfileScreen';
 import ProfileDetailScreen from './ProfileDetailScreen';
 import PhotoViewerScreen from './PhotoViewerScreen';
+import MessageRoomScreen from './MessageRoomScreen';
 
 export {
   AuthScreen,
@@ -22,4 +23,5 @@ export {
   EditProfileScreen,
   ProfileDetailScreen,
   PhotoViewerScreen,
+  MessageRoomScreen,
 };

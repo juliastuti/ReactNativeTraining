@@ -1,33 +1,137 @@
 export const recidenceItems = [
-  {label: 'Denpasar', value: 'denpasar'},
-  {label: 'Badung', value: 'badung'},
-  {label: 'Gianyar', value: 'gianyar'},
-  {label: 'Klungkung', value: 'klungkung'},
+  {
+    value: 0,
+    label: 'Ubud',
+  },
+  {
+    value: 1,
+    label: 'Seminyak',
+  },
+  {
+    value: 2,
+    label: 'Kuta',
+  },
+  {
+    value: 3,
+    label: 'Legian',
+  },
+  {
+    value: 4,
+    label: 'Kerobokan',
+  },
+  {
+    value: 5,
+    label: 'Sanur',
+  },
+  {
+    value: 6,
+    label: 'Nusa Dua',
+  },
+  {
+    value: 7,
+    label: 'Denpasar',
+  },
+  {
+    value: 8,
+    label: 'Tuban',
+  },
 ];
 
 export const hobbyItems = [
-  {value: 0, label: 'music'},
-  {value: 1, label: 'writing'},
-  {value: 2, label: 'watching'},
-  {value: 3, label: 'gaming'},
-  {value: 4, label: 'sleep'},
+  {
+    value: 0,
+    label: 'Drive',
+  },
+  {
+    value: 1,
+    label: 'Anime･cartoon･game',
+  },
+  {
+    value: 2,
+    label: 'Sports',
+  },
+  {
+    value: 3,
+    label: 'Karaoke',
+  },
+  {
+    value: 4,
+    label: 'Gambling',
+  },
+  {
+    value: 5,
+    label: 'Shopping',
+  },
+  {
+    value: 6,
+    label: 'Other',
+  },
 ];
 
 export const personalityItems = [
-  {label: 'item 1', value: 0},
-  {label: 'item 2', value: 1},
-  {label: 'item 3', value: 2},
+  {
+    value: 0,
+    label: 'Unselected',
+  },
+  {
+    value: 1,
+    label: 'Friendly',
+  },
+  {
+    value: 2,
+    label: 'Bright',
+  },
+  {
+    value: 3,
+    label: 'Funny',
+  },
+  {
+    value: 4,
+    label: 'Cool',
+  },
+  {
+    value: 5,
+    label: 'Natural',
+  },
+  {
+    value: 6,
+    label: 'Spoiled',
+  },
+  {
+    value: 7,
+    label: 'Other',
+  },
 ];
 
 export const jobItems = [
   {label: 'Civil servant', value: 0},
-  {label: 'Self employed', value: 1},
-  {label: 'Freelance', value: 2},
-  {label: 'Part time', value: 3},
-  {label: 'Other', value: 4},
+  {label: 'Employee', value: 1},
+  {label: 'Self Employed', value: 2},
+  {label: 'Civil Servant', value: 3},
+  {label: 'Vocational School Student', value: 4},
+  {label: 'College Student', value: 5},
+  {label: 'Food related', value: 6},
+  {label: 'Doctor', value: 7},
+  {label: 'Nurse', value: 8},
+  {label: 'Beauty', value: 9},
+  {label: 'Advertisement Related', value: 10},
+  {label: 'IT System WEB', value: 11},
+  {label: 'Finance Insurance', value: 12},
+  {label: 'Real Estate Related', value: 13},
+  {label: 'Other', value: 14},
 ];
 
 export const genderItems = [
-  {label: 'Female', value: 0},
-  {label: 'Male', value: 1},
+  {
+    value: 0,
+    label: 'Unselected',
+  },
+  {
+    value: 1,
+    label: 'Male',
+  },
+  {
+    value: 2,
+    label: 'Female',
+  },
 ];

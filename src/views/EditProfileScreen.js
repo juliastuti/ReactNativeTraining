@@ -288,7 +288,7 @@ const EditProfileScreen = ({navigation, label}) => {
             <CustomSelect
               label="Sex"
               // placeholder="Sex"
-              data={genderItems}
+              data={genderItems.slice(1)}
               value={gender}
               setValue={setGender}
               selected="Select Gender"
@@ -313,14 +313,12 @@ const EditProfileScreen = ({navigation, label}) => {
               setSelected={setHobby}
               placeholder="Hobby"
             />
-
             <CustomSelect
               label="Character"
               data={personalityItems}
               value={personality}
               setValue={setPersonality}
             />
-
             <CustomInput
               value={about.about}
               maxLength={200}

@@ -1,4 +1,4 @@
-import React, {useContext, useEffect, useState, useLayoutEffect} from 'react';
+import React, {useContext, useEffect, useState} from 'react';
 import {
   SafeAreaView,
   StyleSheet,
@@ -6,7 +6,6 @@ import {
   TouchableWithoutFeedback,
   View,
   Image,
-  Button,
   ActivityIndicator,
 } from 'react-native';
 import {MessageFeed} from '../components/molecules';
@@ -49,7 +48,9 @@ const MessageScreen = ({navigation}) => {
         />
         <View style={styles.identityWrapper}>
           <Text style={styles.name}>{item.nickname}</Text>
-          <Text style={styles.message}>{item.message}</Text>
+          <Text style={styles.message} numberOfLines={1}>
+            {item.message}
+          </Text>
         </View>
       </View>
     );
@@ -100,7 +101,7 @@ const MessageScreen = ({navigation}) => {
         </View>
       ),
     });
-  }, [toggle]);
+  }, [toggle, message]);
 
   const getMessage = () => {
     setIsLoading(true);
@@ -113,35 +114,47 @@ const MessageScreen = ({navigation}) => {
       .then(res => {
         if (res.data.status === 1) {
           console.log(res.data.items);
-          setMessage(res.data.items);
+          setMessage([...res.data.items]);
           setIsLoading(false);
         } else if (res.data.error.errorCode === 2) {
-          alert('Kosong');
+          alert('No Message');
           setIsLoading(false);
         }
       });
   };
 
   useEffect(() => {
-    getMessage();
-  }, []);
+    navigation.addListener('focus', () => {
+      getMessage();
+    });
+  }, [navigation]);
 
   const handleDelete = () => {
     console.log('access_token', user.token, 'talk_ids', messageId);
     getClient
-      .post('TalkCtrl/TalkList/Delete', {
+      .get('TalkCtrl/Delete', {
         params: {
           access_token: user.token,
           talk_ids: messageId,
         },
       })
-      .then(res => alert(JSON.stringify(res.data)));
+      .then(res => {
+        if (res.data.status === 1) {
+          const newMessage = message.filter((item, i) => {
+            return item.talkId !== messageId;
+          });
+          setMessage(newMessage);
+          setToggle(false);
+          getMessage();
+        }
+      });
   };
 
   return (
     <SafeAreaView style={styles.container}>
       <View style={{padding: 16}}>
         <MessageFeed
+          extraData={message}
           data={message}
           ListFooterComponent={renderLoading}
           renderItem={renderItem}
@@ -175,7 +188,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   image: {borderRadius: 100, height: 60, width: 60},
-  identityWrapper: {paddingLeft: 16},
+  identityWrapper: {paddingLeft: 16, flex: 1},
   name: {
     fontSize: 16,
     fontWeight: 'bold',

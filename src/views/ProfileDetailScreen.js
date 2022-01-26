@@ -100,51 +100,58 @@ const ProfileDetailScreen = ({route, navigation}) => {
               {profile && profile.nickname}
             </Text>
           </View>
-          <View style={{flexDirection: 'row', padding: 16}}>
-            <View style={{paddingTop: 16}}>
-              {profile && profile.gender.length != 0 && (
-                <Text style={styles.label}>Sex</Text>
-              )}
-              {profile && profile.hobby.length != 0 && (
-                <Text style={styles.label}>Hobby</Text>
-              )}
-              {profile && profile.age.length != 0 && (
-                <Text style={styles.label}>Age</Text>
-              )}
-              {/* {profile && profile.job.length != 0 && (
-                <Text style={styles.label}>Job</Text>
-              )} */}
-              {profile && profile.personality.length != 0 && (
-                <Text style={styles.label}>Occupation</Text>
-              )}
-              {profile && profile.residence.length != 0 && (
-                <Text style={styles.label}>Area</Text>
-              )}
-            </View>
-            <View style={{paddingLeft: 60, paddingTop: 16, marginRight: 16}}>
-              {profile && profile.gender.length != 0 && (
-                <Text style={styles.label}>
-                  {genderItems[profile.gender].label}
-                </Text>
-              )}
-              {profile && profile.hobby.length != 0 && (
-                <Text style={styles.label}>{userHobby.toString()}</Text>
-              )}
-              {profile && profile.age.length != 0 && (
-                <Text style={styles.label}>{profile.age}</Text>
-              )}
-              {profile && profile.job.length != 0 && (
-                <Text style={styles.label}>{jobItems[profile.job].label}</Text>
-              )}
-              {/* {profile && profile.personality.length != 0 && (
-                <Text style={styles.label}>
-                  {personalityItems[profile.personality].label}
-                </Text>
-              )} */}
-              {profile && profile.residence.length != 0 && (
-                <Text style={styles.label}>{profile.residence}</Text>
-              )}
-            </View>
+          <View style={styles.profiledesc}>
+            {profile && profile.aboutMe.length != 0 && (
+              <Text style={styles.profiledesc}>{profile.aboutMe}</Text>
+            )}
+          </View>
+          <View
+            style={{flexDirection: 'row', padding: 12, position: 'relative'}}>
+            {profile && profile.gender.length != 0 && (
+              <Text style={styles.label}>Sex</Text>
+            )}
+            {profile && profile.gender.length != 0 && (
+              <Text style={styles.item}>
+                {genderItems[profile.gender].label}
+              </Text>
+            )}
+          </View>
+          <View
+            style={{flexDirection: 'row', padding: 12, position: 'relative'}}>
+            {profile && profile.hobby.length != 0 && (
+              <Text style={styles.label}>Hobby</Text>
+            )}
+            {profile && profile.hobby.length != 0 && (
+              <Text style={styles.item}>{userHobby.toString()}</Text>
+            )}
+          </View>
+          <View
+            style={{flexDirection: 'row', padding: 12, position: 'relative'}}>
+            {profile && profile.age.length != 0 && (
+              <Text style={styles.label}>Age</Text>
+            )}
+            {profile && profile.age.length != 0 && (
+              <Text style={styles.item}>{profile.age}</Text>
+            )}
+          </View>
+          <View
+            style={{flexDirection: 'row', padding: 12, position: 'relative'}}>
+            {profile && profile.personality.length != 0 && (
+              <Text style={styles.label}>Occupation</Text>
+            )}
+            {profile && profile.job.length != 0 && (
+              <Text style={styles.item}>{jobItems[profile.job].label}</Text>
+            )}
+          </View>
+          <View
+            style={{flexDirection: 'row', padding: 12, position: 'relative'}}>
+            {profile && profile.residence.length != 0 && (
+              <Text style={styles.label}>Area</Text>
+            )}
+
+            {profile && profile.residence.length != 0 && (
+              <Text style={styles.item}>{profile.residence}</Text>
+            )}
           </View>
         </View>
       </ScrollView>
@@ -161,8 +168,14 @@ const ProfileDetailScreen = ({route, navigation}) => {
         <CustomButton
           title="Send Message"
           theme="primary"
-          onPress={() => navigation.navigate('MessageScreen')}
-        />
+          onPress={() =>
+            navigation.navigate('MessageRoomScreen', {
+              userId: userId,
+              name: profile.nickname,
+            })
+          }>
+          <Text>Send Message</Text>
+        </CustomButton>
       </View>
     </SafeAreaView>
   );
@@ -184,13 +197,24 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
     color: 'black',
-    marginBottom: 16,
+    marginBottom: 12,
+  },
+  item: {
+    fontSize: 16,
+    fontWeight: '600',
+    position: 'absolute',
+    top: 12,
+    left: 120,
+    color: 'black',
+    flex: 1,
+    width: 270,
   },
   button: {
     position: 'absolute',
   },
   profiledesc: {
-    marginTop: 24,
+    padding: 8,
+    marginTop: 10,
     textAlign: 'center',
     fontSize: 16,
     fontWeight: 'bold',

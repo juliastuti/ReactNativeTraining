@@ -51,7 +51,7 @@ const ProfileDetailScreen = ({route, navigation}) => {
       return hobbyItems[Number(item)].label;
     });
 
-  console.log('profile');
+  console.log(profile);
 
   return (
     <SafeAreaView style={{flex: 1, backgroundColor: 'white'}}>
@@ -100,13 +100,24 @@ const ProfileDetailScreen = ({route, navigation}) => {
               {profile && profile.nickname}
             </Text>
           </View>
-          <View style={styles.profiledesc}>
+          <View
+            style={
+              ([styles.profiledesc],
+              profile && profile.aboutMe.length != 0
+                ? {padding: 12}
+                : {padding: 0})
+            }>
             {profile && profile.aboutMe.length != 0 && (
               <Text style={styles.profiledesc}>{profile.aboutMe}</Text>
             )}
           </View>
           <View
-            style={{flexDirection: 'row', padding: 12, position: 'relative'}}>
+            style={[
+              {flexDirection: 'row', position: 'relative'},
+              profile && profile.gender.length != 0
+                ? {padding: 12}
+                : {padding: 0},
+            ]}>
             {profile && profile.gender != 0 && (
               <Text style={styles.label}>Sex</Text>
             )}
@@ -117,7 +128,12 @@ const ProfileDetailScreen = ({route, navigation}) => {
             )}
           </View>
           <View
-            style={{flexDirection: 'row', padding: 12, position: 'relative'}}>
+            style={[
+              {flexDirection: 'row', position: 'relative'},
+              profile && profile.hobby.length != 0
+                ? {padding: 12}
+                : {padding: 0},
+            ]}>
             {profile && profile.hobby.length != 0 && (
               <Text style={styles.label}>Hobby</Text>
             )}
@@ -126,7 +142,10 @@ const ProfileDetailScreen = ({route, navigation}) => {
             )}
           </View>
           <View
-            style={{flexDirection: 'row', padding: 12, position: 'relative'}}>
+            style={[
+              {flexDirection: 'row', position: 'relative'},
+              profile && profile.age.length != 0 ? {padding: 12} : {padding: 0},
+            ]}>
             {profile && profile.age != 0 && (
               <Text style={styles.label}>Age</Text>
             )}
@@ -135,7 +154,10 @@ const ProfileDetailScreen = ({route, navigation}) => {
             )}
           </View>
           <View
-            style={{flexDirection: 'row', padding: 12, position: 'relative'}}>
+            style={[
+              {flexDirection: 'row', position: 'relative'},
+              profile && profile.job.length != 0 ? {padding: 12} : {padding: 0},
+            ]}>
             {profile && profile.job != 0 && (
               <Text style={styles.label}>Occupation</Text>
             )}
@@ -144,7 +166,12 @@ const ProfileDetailScreen = ({route, navigation}) => {
             )}
           </View>
           <View
-            style={{flexDirection: 'row', padding: 12, position: 'relative'}}>
+            style={[
+              {flexDirection: 'row', position: 'relative'},
+              profile && profile.residence.length != 0
+                ? {padding: 12}
+                : {padding: 0},
+            ]}>
             {profile && profile.residence.length != 0 && (
               <Text style={styles.label}>Area</Text>
             )}

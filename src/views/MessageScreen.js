@@ -22,37 +22,47 @@ const MessageScreen = ({navigation}) => {
   const [checked, setChecked] = useState(false);
   const [messageId, setMessageId] = useState(null);
 
+  console.log(message);
+
   const renderItem = ({item}) => {
     return (
-      <View style={styles.wrapper}>
-        {toggle && (
-          <View style={{paddingRight: 8}}>
-            <Checkbox
-              color="blue"
-              status={checked ? 'checked' : 'unchecked'}
-              onPress={() => {
-                setChecked(!checked);
-                setMessageId(item.talkId);
-              }}
-            />
-          </View>
-        )}
+      <TouchableWithoutFeedback
+        onPress={() =>
+          navigation.navigate('MessageRoomScreen', {
+            userId: item.userId,
+            name: item.nickname,
+          })
+        }>
+        <View style={styles.wrapper}>
+          {toggle && (
+            <View style={{paddingRight: 8}}>
+              <Checkbox
+                color="blue"
+                status={checked ? 'checked' : 'unchecked'}
+                onPress={() => {
+                  setChecked(!checked);
+                  setMessageId(item.talkId);
+                }}
+              />
+            </View>
+          )}
 
-        <Image
-          source={{
-            uri: item.imageUrl
-              ? item.imageUrl
-              : 'https://via.placeholder.com/150',
-          }}
-          style={styles.image}
-        />
-        <View style={styles.identityWrapper}>
-          <Text style={styles.name}>{item.nickname}</Text>
-          <Text style={styles.message} numberOfLines={1}>
-            {item.message}
-          </Text>
+          <Image
+            source={{
+              uri: item.imageUrl
+                ? item.imageUrl
+                : 'https://via.placeholder.com/150',
+            }}
+            style={styles.image}
+          />
+          <View style={styles.identityWrapper}>
+            <Text style={styles.name}>{item.nickname}</Text>
+            <Text style={styles.message} numberOfLines={1}>
+              {item.message}
+            </Text>
+          </View>
         </View>
-      </View>
+      </TouchableWithoutFeedback>
     );
   };
 
@@ -179,7 +189,7 @@ const MessageScreen = ({navigation}) => {
 export default MessageScreen;
 
 const styles = StyleSheet.create({
-  container: {position: 'relative', flex: 1},
+  container: {position: 'relative', flex: 1, backgroundColor: '#FFFF'},
   wrapper: {
     flexDirection: 'row',
     borderBottomColor: '#d7d7d7',

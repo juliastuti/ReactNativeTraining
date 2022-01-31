@@ -1,4 +1,5 @@
 import React, {useContext, useEffect, useState} from 'react';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import {
   SafeAreaView,
   StyleSheet,
@@ -12,17 +13,14 @@ import {MessageFeed} from '../components/molecules';
 import {AuthContext} from '../context';
 import getClient from '../services/getClient';
 import {CustomButton} from '../components/atoms';
-import {Checkbox} from 'react-native-paper';
+import {CheckBox} from 'react-native-elements';
 
 const MessageScreen = ({navigation}) => {
   const [user] = useContext(AuthContext);
   const [message, setMessage] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [toggle, setToggle] = useState(false);
-  const [checked, setChecked] = useState(false);
-  const [messageId, setMessageId] = useState(null);
-
-  console.log(message);
+  const [talkId, setTalkId] = useState([]);
 
   const renderItem = ({item}) => {
     return (
@@ -36,12 +34,25 @@ const MessageScreen = ({navigation}) => {
         <View style={styles.wrapper}>
           {toggle && (
             <View style={{paddingRight: 8}}>
-              <Checkbox
-                color="blue"
-                status={checked ? 'checked' : 'unchecked'}
+              <CheckBox
+                center
+                checkedIcon={
+                  <Icon name="checkbox-marked" color="blue" size={18} />
+                }
+                uncheckedIcon={
+                  <Icon name="checkbox-blank-outline" color="blue" size={18} />
+                }
+                checked={talkId.includes(item.talkId)}
                 onPress={() => {
-                  setChecked(!checked);
-                  setMessageId(item.talkId);
+                  const newIds = [...talkId];
+                  const index = newIds.indexOf(item.talkId);
+
+                  if (index > -1) {
+                    newIds.splice(index, 1);
+                  } else {
+                    newIds.push(item.talkId);
+                  }
+                  setTalkId(newIds);
                 }}
               />
             </View>
@@ -123,7 +134,6 @@ const MessageScreen = ({navigation}) => {
       })
       .then(res => {
         if (res.data.status === 1) {
-          console.log(res.data.items);
           setMessage([...res.data.items]);
           setIsLoading(false);
         } else if (res.data.error.errorCode === 2) {
@@ -137,25 +147,28 @@ const MessageScreen = ({navigation}) => {
     navigation.addListener('focus', () => {
       getMessage();
     });
-  }, [navigation]);
+  }, [navigation, isLoading]);
+
+  console.log(talkId);
 
   const handleDelete = () => {
-    console.log('access_token', user.token, 'talk_ids', messageId);
+    setIsLoading(true);
     getClient
       .get('TalkCtrl/Delete', {
         params: {
           access_token: user.token,
-          talk_ids: messageId,
+          talk_ids: talkId.toString(),
         },
       })
       .then(res => {
         if (res.data.status === 1) {
-          const newMessage = message.filter((item, i) => {
-            return item.talkId !== messageId;
+          setToggle(false);
+          setIsLoading(false);
+
+          let newMessage = message.filter(item => {
+            return item.talkId != talkId;
           });
           setMessage(newMessage);
-          setToggle(false);
-          getMessage();
         }
       });
   };
@@ -178,6 +191,7 @@ const MessageScreen = ({navigation}) => {
               theme="danger"
               title="Delete"
               onPress={() => handleDelete()}
+              disabled={talkId.length === 0 ? true : false}
             />
           </View>
         </View>
@@ -189,7 +203,7 @@ const MessageScreen = ({navigation}) => {
 export default MessageScreen;
 
 const styles = StyleSheet.create({
-  container: {position: 'relative', flex: 1, backgroundColor: '#FFFF'},
+  container: {position: 'relative', flex: 1},
   wrapper: {
     flexDirection: 'row',
     borderBottomColor: '#d7d7d7',

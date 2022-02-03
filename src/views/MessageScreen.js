@@ -22,17 +22,18 @@ const MessageScreen = ({navigation}) => {
   const [toggle, setToggle] = useState(false);
   const [talkId, setTalkId] = useState([]);
   const [isRefreshed, setIsRefreshed] = useState(false);
-  const [lastUpdateTime, setLastUpdateTime] = useState(new Date());
 
   const renderItem = ({item}) => {
     return (
       <TouchableWithoutFeedback
-        onPress={() =>
-          navigation.navigate('MessageRoomScreen', {
-            userId: item.userId,
-            name: item.nickname,
-          })
-        }>
+        onPress={() => {
+          if (!toggle) {
+            navigation.navigate('MessageRoomScreen', {
+              userId: item.userId,
+              name: item.nickname,
+            });
+          }
+        }}>
         <View style={styles.wrapper}>
           {toggle && (
             <View style={{paddingRight: 8}}>
@@ -130,19 +131,17 @@ const MessageScreen = ({navigation}) => {
     });
   }, [toggle, message]);
 
-  const getMessage = updateTime => {
+  const getMessage = () => {
     setIsLoading(true);
     getClient
       .get('TalkCtrl/TalkList', {
         params: {
           access_token: user.token,
-          last_update_time: updateTime,
         },
       })
       .then(res => {
         if (res.data.status === 1) {
           setMessage([...res.data.items]);
-          setLastUpdateTime(res.data.items.lastUpdateTime);
           setIsLoading(false);
           setIsRefreshed(false);
         } else {
@@ -156,8 +155,9 @@ const MessageScreen = ({navigation}) => {
   useEffect(() => {
     navigation.addListener('focus', () => {
       getMessage();
+      setToggle(false);
+      setTalkId([]);
     });
-    setToggle(false);
   }, [navigation]);
 
   const handleRefreshed = () => {
@@ -183,6 +183,7 @@ const MessageScreen = ({navigation}) => {
             return item.talkId != talkId;
           });
           setMessage(newMessage);
+          getMessage();
         }
       });
   };

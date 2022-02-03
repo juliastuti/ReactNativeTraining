@@ -21,6 +21,8 @@ const MessageScreen = ({navigation}) => {
   const [isLoading, setIsLoading] = useState(false);
   const [toggle, setToggle] = useState(false);
   const [talkId, setTalkId] = useState([]);
+  const [isRefreshed, setIsRefreshed] = useState(false);
+  const [lastUpdateTime, setLastUpdateTime] = useState(new Date());
 
   const renderItem = ({item}) => {
     return (
@@ -106,7 +108,11 @@ const MessageScreen = ({navigation}) => {
                   </Text>
                 </TouchableWithoutFeedback>
               ) : (
-                <TouchableWithoutFeedback onPress={() => setToggle(false)}>
+                <TouchableWithoutFeedback
+                  onPress={() => {
+                    setToggle(false);
+                    setTalkId([]);
+                  }}>
                   <Text
                     style={{
                       paddingRight: 16,
@@ -124,21 +130,25 @@ const MessageScreen = ({navigation}) => {
     });
   }, [toggle, message]);
 
-  const getMessage = () => {
+  const getMessage = updateTime => {
     setIsLoading(true);
     getClient
       .get('TalkCtrl/TalkList', {
         params: {
           access_token: user.token,
+          last_update_time: updateTime,
         },
       })
       .then(res => {
         if (res.data.status === 1) {
           setMessage([...res.data.items]);
+          setLastUpdateTime(res.data.items.lastUpdateTime);
           setIsLoading(false);
-        } else if (res.data.error.errorCode === 2) {
-          alert('No Message');
+          setIsRefreshed(false);
+        } else {
+          alert(res.data.error.errorMessage);
           setIsLoading(false);
+          setIsRefreshed(false);
         }
       });
   };
@@ -147,9 +157,12 @@ const MessageScreen = ({navigation}) => {
     navigation.addListener('focus', () => {
       getMessage();
     });
-  }, [navigation, isLoading]);
+  }, [navigation, message]);
 
-  console.log(talkId);
+  const handleRefreshed = () => {
+    setIsRefreshed(true);
+    getMessage();
+  };
 
   const handleDelete = () => {
     setIsLoading(true);
@@ -177,10 +190,11 @@ const MessageScreen = ({navigation}) => {
     <SafeAreaView style={styles.container}>
       <View style={{padding: 16}}>
         <MessageFeed
-          extraData={message}
           data={message}
           ListFooterComponent={renderLoading}
           renderItem={renderItem}
+          refreshing={isRefreshed}
+          onRefresh={handleRefreshed}
           keyExtractor={(item, i) => i.toString()}
         />
       </View>

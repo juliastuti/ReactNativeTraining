@@ -95,6 +95,7 @@ const FeedScreen = () => {
     <SafeAreaView style={{flex: 1}}>
       {/* <Text>{currentLoginTime.toString()}</Text> */}
       <FeedGrid
+        extraData={data}
         refreshing={isRefreshed}
         onRefresh={handleRefresh}
         numColumns={2}

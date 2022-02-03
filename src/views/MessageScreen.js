@@ -157,7 +157,8 @@ const MessageScreen = ({navigation}) => {
     navigation.addListener('focus', () => {
       getMessage();
     });
-  }, [navigation, message]);
+    setToggle(false);
+  }, [navigation]);
 
   const handleRefreshed = () => {
     setIsRefreshed(true);

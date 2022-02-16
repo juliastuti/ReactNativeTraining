@@ -31,6 +31,7 @@ const MessageScreen = ({navigation}) => {
             navigation.navigate('MessageRoomScreen', {
               userId: item.userId,
               name: item.nickname,
+              imgUrl: item.imageUrl,
             });
           }
         }}>
@@ -193,7 +194,6 @@ const MessageScreen = ({navigation}) => {
       <View style={{padding: 16}}>
         <MessageFeed
           data={message}
-          ListFooterComponent={renderLoading}
           renderItem={renderItem}
           refreshing={isRefreshed}
           onRefresh={handleRefreshed}

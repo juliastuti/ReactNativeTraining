@@ -5,8 +5,6 @@ import Icon from 'react-native-vector-icons/AntDesign';
 
 const PhotoViewerScreen = ({navigation, route}) => {
   const {userId, imgUrl} = route.params;
-  console.log(imgUrl);
-
   const images = [
     {
       url: imgUrl,
@@ -18,10 +16,7 @@ const PhotoViewerScreen = ({navigation, route}) => {
       <ImageViewer
         imageUrls={images}
         renderHeader={() => (
-          <TouchableWithoutFeedback
-            onPress={() =>
-              navigation.navigate('ProfileDetailScreen', {userId})
-            }>
+          <TouchableWithoutFeedback onPress={() => navigation.goBack()}>
             <Icon
               name="left"
               size={24}

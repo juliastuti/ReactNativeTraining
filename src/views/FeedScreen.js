@@ -60,7 +60,10 @@ const FeedScreen = () => {
         <TouchableOpacity
           style={styles.item}
           onPress={() =>
-            navigation.navigate('ProfileDetailScreen', {userId: item.userId})
+            navigation.navigate('ProfileDetailScreen', {
+              userId: item.userId,
+              name: item.nickname,
+            })
           }>
           <Image
             style={styles.image}

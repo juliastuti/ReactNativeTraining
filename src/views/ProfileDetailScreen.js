@@ -198,6 +198,7 @@ const ProfileDetailScreen = ({route, navigation}) => {
             navigation.navigate('MessageRoomScreen', {
               userId: userId,
               name: profile.nickname,
+              imgUrl: profile.imageUrl,
             })
           }>
           <Text>Send Message</Text>

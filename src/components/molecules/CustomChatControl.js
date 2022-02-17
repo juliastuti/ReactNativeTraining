@@ -9,7 +9,7 @@ import {
 import React from 'react';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
-const CustomChatControl = ({onSend, onAttach, ...props}) => {
+const CustomChatControl = ({onSend, onAttach, disabled, ...props}) => {
   return (
     <View style={styles.wrapper}>
       <View style={styles.controls}>
@@ -17,8 +17,18 @@ const CustomChatControl = ({onSend, onAttach, ...props}) => {
           <Icon style={styles.icon} name="plus" size={24} />
         </TouchableOpacity>
         <TextInput multiline {...props} style={styles.input} />
-        <TouchableOpacity style={styles.button} onPress={() => onSend()}>
-          <Text style={{color: 'white'}}>Send</Text>
+        <TouchableOpacity
+          disabled={disabled}
+          style={[
+            styles.button,
+            disabled
+              ? {backgroundColor: 'whitesmoke'}
+              : {backgroundColor: 'blue'},
+          ]}
+          onPress={() => onSend()}>
+          <Text style={[disabled ? {color: 'gray'} : {color: 'white'}]}>
+            Send
+          </Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -51,12 +61,12 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: 'gray',
     borderRadius: 8,
-    height: 40,
+    minHeight: 40,
     marginHorizontal: 10,
-    paddingHorizontal: 16,
+    paddingHorizontal: 8,
+    paddingVertical: 8,
   },
   button: {
-    backgroundColor: 'blue',
     text: 'white',
     padding: 8,
     borderRadius: 8,

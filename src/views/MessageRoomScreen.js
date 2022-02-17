@@ -10,7 +10,6 @@ import {
 import React, {useEffect, useContext, useState} from 'react';
 import {CustomChatControl, Popup} from '../components/molecules';
 import {AuthContext} from '../context';
-import axios from 'axios';
 import getClient from '../services/getClient';
 import {CustomButton} from '../components/atoms';
 import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
@@ -44,6 +43,8 @@ const MessageRoomScreen = ({route, navigation}) => {
       console.warn(err);
     }
   };
+
+  console.log(user, userId);
 
   const requestGalleryPermission = async () => {
     try {
@@ -79,35 +80,39 @@ const MessageRoomScreen = ({route, navigation}) => {
       })
       .then(result => {
         if (result.data.status === 1) {
-          setTalk(result.data.items);
-          setAdd(false);
+          if (result.data.items) {
+            setTalk(result.data.items.reverse());
+            setAdd(false);
+          }
         }
       });
   };
-
-  console.log(user.token, userId);
 
   useEffect(() => {
     navigation.setOptions({
       headerTitle: () => {
         return (
           <>
-            <TouchableOpacity
-              onPress={() =>
-                navigation.navigate('PhotoViewerScreen', {
-                  imgUrl,
-                })
-              }>
-              <Image
-                style={{width: 40, height: 40, borderRadius: 100}}
-                source={{uri: imgUrl}}
-              />
-            </TouchableOpacity>
+            {imgUrl && (
+              <TouchableOpacity
+                style={{
+                  marginRight: 12,
+                }}
+                onPress={() =>
+                  navigation.navigate('PhotoViewerScreen', {
+                    imgUrl,
+                  })
+                }>
+                <Image
+                  style={{width: 40, height: 40, borderRadius: 100}}
+                  source={{uri: imgUrl}}
+                />
+              </TouchableOpacity>
+            )}
             <Text
               style={{
-                marginLeft: 12,
-                fontSize: 18,
-                fontWeight: 'bold',
+                fontSize: 20,
+                fontWeight: '600',
                 color: 'black',
                 textTransform: 'capitalize',
               }}>
@@ -120,41 +125,6 @@ const MessageRoomScreen = ({route, navigation}) => {
     handleGetTalk();
   }, [add]);
 
-  const handleUploadImage = image => {
-    console.log('Request Data Image Upload', {
-      access_token: user.token,
-      image: image,
-      location: 'Profile',
-    });
-    const url = 'MediaCtrl/ImageUpload';
-    const headers = {
-      Accept: 'application/json',
-      'Content-Type': 'application/x-www-form-urlencoded',
-      'Content-Length': 82,
-    };
-    const data = new FormData();
-    data.append('data', {
-      uri: Platform.OS === 'ios' ? image.uri.replace('file://', '') : image.uri,
-      name: image.fileName,
-      type: image.type,
-    });
-
-    getClient
-      .post(url, data, {
-        params: {
-          access_token: user.token,
-          location: 'Profile',
-        },
-        headers: headers,
-      })
-      .then(res => {
-        if (res.data.status === 1) {
-          handleGetProfile();
-          setPopup(!popup);
-        }
-      });
-  };
-
   const openGallery = () => {
     const options = {
       mediaType: 'photo',
@@ -164,7 +134,7 @@ const MessageRoomScreen = ({route, navigation}) => {
     launchImageLibrary(options, res => {
       console.log(res);
       if (res.assets) {
-        handleUploadImage(res.assets[0]);
+        handleSendImage(res.assets[0]);
       }
     });
   };
@@ -182,7 +152,7 @@ const MessageRoomScreen = ({route, navigation}) => {
       launchCamera(options, res => {
         console.log(res);
         if (res.assets) {
-          handleUploadImage(res.assets[0]);
+          handleSendImage(res.assets[0]);
         }
       });
     }
@@ -202,10 +172,54 @@ const MessageRoomScreen = ({route, navigation}) => {
         if (res.data.status === 1) {
           setTypeTalk('');
           setAdd(true);
-          alert(res.data.status);
         }
       });
   };
+
+  const handleSendImage = image => {
+    const url = 'MediaCtrl/ImageUpload';
+    const headers = {
+      Accept: 'application/json',
+      'Content-Type': 'application/x-www-form-urlencoded',
+      'Content-Length': 82,
+    };
+    const data = new FormData();
+    data.append('data', {
+      uri: Platform.OS === 'ios' ? image.uri.replace('file://', '') : image.uri,
+      name: image.fileName,
+      type: image.type,
+    });
+
+    getClient
+      .post(url, data, {
+        params: {
+          access_token: user.token,
+          location: 'Talk',
+        },
+        headers: headers,
+      })
+      .then(res => {
+        if (res.data.status === 1) {
+          getClient
+            .get('TalkCtrl/SendMessage', {
+              params: {
+                access_token: user.token,
+                to_user_id: userId,
+                image_id: res.data.imageId,
+              },
+            })
+            .then(result => {
+              if (result.data.status === 1) {
+                console.log(result.data);
+                setAdd(true);
+                setPopup(!popup);
+                alert(result.data.status);
+              }
+            });
+        }
+      });
+  };
+
   return (
     <View style={styles.wrapper}>
       {popup && (
@@ -225,87 +239,123 @@ const MessageRoomScreen = ({route, navigation}) => {
         </Popup>
       )}
       <FlatList
-        extraData={talk}
         data={talk}
         keyExtractor={(item, i) => i.toString()}
         renderItem={({item, i}) => {
           const date = new Date(item.time.substring(0, 19));
-          const newDate = `${date.getHours()}.${date.getMinutes()}`;
-          console.log(newDate);
+          const ampm = date.getHours() > 12 ? 'PM' : 'AM';
+          const newDate = `${date.getHours()}:${date.getMinutes()} ${ampm}`;
           return (
             <View style={styles.messageList}>
-              {item.imageUrl && (
-                <TouchableOpacity
-                  onPress={() =>
-                    navigation.navigate('PhotoViewerScreen', {
-                      imgUrl: item.imageUrl,
-                    })
-                  }>
-                  <View
-                    style={[
-                      {
-                        padding: 8,
-                        width: 200,
-                        height: 200,
-                        marginVertical: 8,
-                        borderRadius: 8,
-                      },
-                      item.messageKind === 1
-                        ? {backgroundColor: 'blue'}
-                        : {backgroundColor: 'green'},
-                    ]}>
-                    <Image style={{flex: 1}} source={{uri: item.imageUrl}} />
-                  </View>
-                </TouchableOpacity>
-              )}
-
-              <View
-                style={[
-                  {
-                    flexDirection: 'row',
-                    alignItems: 'flex-end',
-                  },
-                  item.messageKind === 1
-                    ? {justifyContent: 'flex-end'}
-                    : {justifyContent: 'flex-start'},
-                ]}>
-                {item.messageKind === 1 && (
-                  <Text
-                    style={{
-                      marginBottom: 8,
-                      marginRight: 8,
-                      fontSize: 12,
-                      fontWeight: '700',
-                    }}>
-                    {item.time}
-                  </Text>
-                )}
-                <Text
+              {item.mediaUrl ? (
+                <View
                   style={[
-                    styles.inboxText,
+                    {flexDirection: 'row', alignItems: 'flex-end'},
                     item.messageKind === 1
-                      ? {backgroundColor: 'green', justifyContent: 'flex-end'}
-                      : {backgroundColor: 'blue', justifyContent: 'flex-start'},
+                      ? {justifyContent: 'flex-start'}
+                      : {justifyContent: 'flex-end'},
                   ]}>
-                  {item.message}
-                </Text>
-                {item.messageKind === 2 && (
+                  {item.messageKind === 2 && (
+                    <Text
+                      style={{
+                        marginRight: 8,
+                        marginBottom: 8,
+                        fontSize: 12,
+                        fontWeight: '700',
+                      }}>
+                      {newDate}
+                    </Text>
+                  )}
+                  <TouchableOpacity
+                    onPress={() =>
+                      navigation.navigate('PhotoViewerScreen', {
+                        imgUrl: item.mediaUrl,
+                      })
+                    }>
+                    <View
+                      style={[
+                        {
+                          padding: 8,
+                          width: 200,
+                          height: 200,
+                          marginVertical: 8,
+                          borderRadius: 8,
+                        },
+                        item.messageKind === 1
+                          ? {backgroundColor: 'blue'}
+                          : {backgroundColor: 'green'},
+                      ]}>
+                      <Image style={{flex: 1}} source={{uri: item.mediaUrl}} />
+                    </View>
+                  </TouchableOpacity>
+                  {item.messageKind === 1 && (
+                    <Text
+                      style={{
+                        marginLeft: 8,
+                        marginBottom: 8,
+                        fontSize: 12,
+                        fontWeight: '700',
+                      }}>
+                      {newDate}
+                    </Text>
+                  )}
+                </View>
+              ) : (
+                <View
+                  style={[
+                    {
+                      flexDirection: 'row',
+                      alignItems: 'flex-end',
+                    },
+                    item.messageKind === 1
+                      ? {justifyContent: 'flex-start'}
+                      : {justifyContent: 'flex-end'},
+                  ]}>
+                  {item.messageKind === 2 && (
+                    <Text
+                      style={{
+                        marginBottom: 8,
+                        marginRight: 8,
+                        fontSize: 12,
+                        fontWeight: '700',
+                      }}>
+                      {newDate}
+                    </Text>
+                  )}
                   <Text
-                    style={{
-                      marginBottom: 8,
-                      marginLeft: 8,
-                      fontSize: 12,
-                      fontWeight: '700',
-                    }}>
-                    {newDate}
+                    style={[
+                      styles.inboxText,
+                      item.messageKind === 1
+                        ? {
+                            backgroundColor: 'blue',
+                            justifyContent: 'flex-start',
+                          }
+                        : {
+                            backgroundColor: 'green',
+                            justifyContent: 'flex-end',
+                          },
+                    ]}>
+                    {item.message}
                   </Text>
-                )}
-              </View>
+                  {item.messageKind === 1 && (
+                    <Text
+                      style={{
+                        marginBottom: 8,
+                        marginLeft: 8,
+                        fontSize: 12,
+                        fontWeight: '700',
+                      }}>
+                      {newDate}
+                    </Text>
+                  )}
+                </View>
+              )}
             </View>
           );
         }}
       />
       <CustomChatControl
+        disabled={typeTalk.length === 0 ? true : false}
         value={typeTalk}
         onChangeText={text => setTypeTalk(text)}
         onSend={handleSendMessage}

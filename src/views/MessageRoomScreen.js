@@ -21,6 +21,8 @@ const MessageRoomScreen = ({route, navigation}) => {
   const [typeTalk, setTypeTalk] = useState('');
   const [popup, setPopup] = useState(false);
   const [add, setAdd] = useState(false);
+  const [borderMessageId, setBorderMessageId] = useState(0);
+  const [howToRequest, setHowToRequest] = useState(0);
 
   const requestCameraPermission = async () => {
     try {
@@ -74,17 +76,36 @@ const MessageRoomScreen = ({route, navigation}) => {
         params: {
           access_token: user.token,
           to_user_id: userId,
-          border_message_id: 0,
-          how_to_request: 0,
+          border_message_id: borderMessageId,
+          how_to_request: howToRequest,
         },
       })
       .then(result => {
-        if (result.data.status === 1) {
-          if (result.data.items) {
-            setTalk(result.data.items.reverse());
-            setAdd(false);
-          }
-        }
+        setTalk([...result.data.items.reverse()]);
+        setAdd(true);
+        // if (result.data.items === 0) {
+        //   // check if the returned data is null - when user wants to chat for the first time and there is no chat history
+        //   setAdd(false); // no need to load previous data as there is no data to load
+        // } else {
+        //   if (borderMessageId === 0) {
+        //     setTalk(result.data.items);
+        //     setBorderMessageId(
+        //       result.data.items[result.data.items.length - 1].messageId,
+        //     );
+        //     setHowToRequest(1);
+        //   } else {
+        //     if (result.data.items === null) {
+        //       // check if the returned data is null
+        //       setAdd(false); // then setMoreNewMessages to false
+        //     } else {
+        //       // else
+        //       setTalk([...talk, ...result.data.items]); // set the previous displayTalkContent + the new talkContentData from the API
+        //       setBorderMessageId(
+        //         result.data.items[result.data.items.length - 1].messageId,
+        //       ); // set the new borderMessageId
+        //     }
+        //   }
+        // }
       });
   };
 
@@ -170,8 +191,20 @@ const MessageRoomScreen = ({route, navigation}) => {
       })
       .then(res => {
         if (res.data.status === 1) {
-          setTypeTalk('');
-          setAdd(true);
+          if (borderMessageId === 0) {
+            setBorderMessageId(
+              res.data.items[res.data.items.length - 1].messageId,
+            );
+            setHowToRequest(1);
+            setTypeTalk('');
+            setAdd(true);
+          } else {
+            setBorderMessageId(
+              res.data.items[res.data.items.length - 1].messageId,
+            );
+            setTypeTalk('');
+            setAdd(true);
+          }
         }
       });
   };

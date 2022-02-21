@@ -1,28 +1,34 @@
 import {
   FlatList,
   Image,
+  Keyboard,
   PermissionsAndroid,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from 'react-native';
-import React, {useEffect, useContext, useState} from 'react';
+import React, {useEffect, useContext, useState, useCallback} from 'react';
 import {CustomChatControl, Popup} from '../components/molecules';
 import {AuthContext} from '../context';
 import getClient from '../services/getClient';
 import {CustomButton} from '../components/atoms';
 import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
+import {useFocusEffect} from '@react-navigation/core';
+import {useRef} from 'react';
 
 const MessageRoomScreen = ({route, navigation}) => {
   const {userId, name, imgUrl} = route.params;
   const [user] = useContext(AuthContext);
+
   const [talk, setTalk] = useState([]);
   const [typeTalk, setTypeTalk] = useState('');
   const [popup, setPopup] = useState(false);
   const [add, setAdd] = useState(false);
   const [borderMessageId, setBorderMessageId] = useState(0);
   const [howToRequest, setHowToRequest] = useState(0);
+
+  const talkRef = useRef();
 
   const requestCameraPermission = async () => {
     try {
@@ -70,46 +76,57 @@ const MessageRoomScreen = ({route, navigation}) => {
     }
   };
 
-  const handleGetTalk = () => {
-    getClient
-      .get('TalkCtrl/Talk', {
-        params: {
-          access_token: user.token,
-          to_user_id: userId,
-          border_message_id: borderMessageId,
-          how_to_request: howToRequest,
-        },
-      })
-      .then(result => {
-        setTalk([...result.data.items.reverse()]);
-        setAdd(true);
-        // if (result.data.items === 0) {
-        //   // check if the returned data is null - when user wants to chat for the first time and there is no chat history
-        //   setAdd(false); // no need to load previous data as there is no data to load
-        // } else {
-        //   if (borderMessageId === 0) {
-        //     setTalk(result.data.items);
-        //     setBorderMessageId(
-        //       result.data.items[result.data.items.length - 1].messageId,
-        //     );
-        //     setHowToRequest(1);
-        //   } else {
-        //     if (result.data.items === null) {
-        //       // check if the returned data is null
-        //       setAdd(false); // then setMoreNewMessages to false
-        //     } else {
-        //       // else
-        //       setTalk([...talk, ...result.data.items]); // set the previous displayTalkContent + the new talkContentData from the API
-        //       setBorderMessageId(
-        //         result.data.items[result.data.items.length - 1].messageId,
-        //       ); // set the new borderMessageId
-        //     }
-        //   }
-        // }
-      });
+  const getTalk = async (
+    access_token,
+    to_user_id,
+    border_message_id,
+    how_to_request,
+  ) => {
+    const talks = await getClient.get('TalkCtrl/Talk', {
+      params: {
+        access_token,
+        to_user_id,
+        border_message_id,
+        how_to_request,
+      },
+    });
+
+    return talks.data;
   };
 
-  useEffect(() => {
+  const handleGetTalk = async () => {
+    const data = await getTalk(
+      user.token,
+      userId,
+      borderMessageId,
+      howToRequest,
+    );
+    console.log(data);
+    if (data.status === 0) {
+      // check if the returned data is null - when user wants to chat for the first time and there is no chat history
+      setAdd(false); // no need to load previous data as there is no data to load
+    } else {
+      if (data.items) {
+        const talks = data.items.reverse();
+        if (borderMessageId === 0) {
+          setTalk(talks);
+          setBorderMessageId(talks[talks.length - 1].messageId);
+          setHowToRequest(1);
+        } else {
+          if (talks === null) {
+            // check if the returned data is null
+            setAdd(false); // then setMoreNewMessages to false
+          } else {
+            // else
+            setTalk([...talk, ...talks]); // set the previous displayTalkContent + the new talkContentData from the API
+            setBorderMessageId(talks[talks.length - 1].messageId); // set the new borderMessageId
+          }
+        }
+      }
+    }
+  };
+
+  const handleHeader = () => {
     navigation.setOptions({
       headerTitle: () => {
         return (
@@ -143,8 +160,18 @@ const MessageRoomScreen = ({route, navigation}) => {
         );
       },
     });
-    handleGetTalk();
-  }, [add]);
+  };
+
+  useFocusEffect(
+    useCallback(() => {
+      handleGetTalk();
+      handleHeader();
+      return () => {
+        handleGetTalk();
+        handleHeader();
+      };
+    }, [navigation]),
+  );
 
   const openGallery = () => {
     const options = {
@@ -171,42 +198,46 @@ const MessageRoomScreen = ({route, navigation}) => {
     const cameraPermission = requestCameraPermission();
     if (cameraPermission && storagePermission) {
       launchCamera(options, res => {
-        console.log(res);
         if (res.assets) {
+          console.log(res.assets[0]);
           handleSendImage(res.assets[0]);
         }
       });
     }
   };
 
-  const handleSendMessage = () => {
+  const handleNewTalk = async () => {
+    const data = await getTalk(user.token, userId, 0, 0);
+    if (data.status === 1) {
+      const talks = data.items.reverse();
+      setTalk(talks);
+      setBorderMessageId(talks[talks.length - 1].messageId);
+      setHowToRequest(1);
+      setPopup(false);
+      if (talks === null) {
+        // check if the returned data is null
+        setAdd(false);
+      }
+      setTypeTalk('');
+      talkRef.current.scrollToEnd({animating: true});
+    }
+  };
+
+  const handleSendMessage = async () => {
     const fd = new FormData();
     fd.append('message', typeTalk);
-    getClient
-      .post('TalkCtrl/SendMessage', fd, {
-        params: {
-          access_token: user.token,
-          to_user_id: userId,
-        },
-      })
-      .then(res => {
-        if (res.data.status === 1) {
-          if (borderMessageId === 0) {
-            setBorderMessageId(
-              res.data.items[res.data.items.length - 1].messageId,
-            );
-            setHowToRequest(1);
-            setTypeTalk('');
-            setAdd(true);
-          } else {
-            setBorderMessageId(
-              res.data.items[res.data.items.length - 1].messageId,
-            );
-            setTypeTalk('');
-            setAdd(true);
-          }
-        }
-      });
+    const sendTalkData = await getClient.post('TalkCtrl/SendMessage', fd, {
+      params: {
+        access_token: user.token,
+        to_user_id: userId,
+      },
+    });
+
+    if (sendTalkData.data.status === 1) {
+      setAdd(true);
+      handleNewTalk();
+      Keyboard.dismiss();
+    }
   };
 
   const handleSendImage = image => {
@@ -243,10 +274,8 @@ const MessageRoomScreen = ({route, navigation}) => {
             })
             .then(result => {
               if (result.data.status === 1) {
-                console.log(result.data);
                 setAdd(true);
-                setPopup(!popup);
-                alert(result.data.status);
+                handleNewTalk();
               }
             });
         }
@@ -272,6 +301,7 @@ const MessageRoomScreen = ({route, navigation}) => {
         </Popup>
       )}
       <FlatList
+        ref={talkRef}
         data={talk}
         keyExtractor={(item, i) => i.toString()}
         renderItem={({item, i}) => {

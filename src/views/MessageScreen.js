@@ -29,7 +29,7 @@ const MessageScreen = ({navigation}) => {
         onPress={() => {
           if (!toggle) {
             navigation.navigate('MessageRoomScreen', {
-              userId: item.userId,
+              userId: item.toUserId,
               name: item.nickname,
               imgUrl: item.imageUrl,
             });
@@ -73,7 +73,7 @@ const MessageScreen = ({navigation}) => {
           <View style={styles.identityWrapper}>
             <Text style={styles.name}>{item.nickname}</Text>
             <Text style={styles.message} numberOfLines={1}>
-              {item.message}
+              {item.mediaType === 0 ? item.message : item.mediaType === 1 ? "Image" : "Video"}
             </Text>
           </View>
         </View>

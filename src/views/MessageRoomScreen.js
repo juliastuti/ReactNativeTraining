@@ -27,8 +27,9 @@ const MessageRoomScreen = ({route, navigation}) => {
   const [add, setAdd] = useState(false);
   const [borderMessageId, setBorderMessageId] = useState(0);
   const [howToRequest, setHowToRequest] = useState(0);
+  const [day, setDay] = useState([]);
 
-  const talkRef = useRef();
+  const talkRef = useRef(true);
 
   const requestCameraPermission = async () => {
     try {
@@ -103,23 +104,27 @@ const MessageRoomScreen = ({route, navigation}) => {
     );
     console.log(data);
     if (data.status === 0) {
-      // check if the returned data is null - when user wants to chat for the first time and there is no chat history
-      setAdd(false); // no need to load previous data as there is no data to load
+      setAdd(false);
     } else {
       if (data.items) {
-        const talks = data.items.reverse();
+        const talks = data.items.reverse().map((item, i) => {
+          if (day.includes(item.time)) {
+            return Object.assign(item, {day: ''});
+          } else {
+            setDay([...day, item.time]);
+            return Object.assign(item, {day: item.time});
+          }          
+        });
         if (borderMessageId === 0) {
           setTalk(talks);
           setBorderMessageId(talks[talks.length - 1].messageId);
           setHowToRequest(1);
         } else {
           if (talks === null) {
-            // check if the returned data is null
-            setAdd(false); // then setMoreNewMessages to false
+            setAdd(false);
           } else {
-            // else
-            setTalk([...talk, ...talks]); // set the previous displayTalkContent + the new talkContentData from the API
-            setBorderMessageId(talks[talks.length - 1].messageId); // set the new borderMessageId
+            setTalk([...talk, ...talks]);
+            setBorderMessageId(talks[talks.length - 1].messageId);
           }
         }
       }
@@ -171,6 +176,7 @@ const MessageRoomScreen = ({route, navigation}) => {
         handleHeader();
       };
     }, [navigation]),
+    console.log('ooke'),
   );
 
   const openGallery = () => {
@@ -215,7 +221,6 @@ const MessageRoomScreen = ({route, navigation}) => {
       setHowToRequest(1);
       setPopup(false);
       if (talks === null) {
-        // check if the returned data is null
         setAdd(false);
       }
       setTypeTalk('');
@@ -305,11 +310,38 @@ const MessageRoomScreen = ({route, navigation}) => {
         data={talk}
         keyExtractor={(item, i) => i.toString()}
         renderItem={({item, i}) => {
+          const monthNames = [
+            'Jan',
+            'Feb',
+            'Mar',
+            'Apr',
+            'May',
+            'Jun',
+            'Jul',
+            'Aug',
+            'Sep',
+            'Oct',
+            'Nov',
+            'Dec',
+          ];
           const date = new Date(item.time.substring(0, 19));
+          const month = monthNames[date.getMonth()];
+          const day = String(date.getDate()).padStart(2, '0');
+          const year = date.getFullYear();
+          const output = `${day} ${month} ${year}`;
           const ampm = date.getHours() > 12 ? 'PM' : 'AM';
           const newDate = `${date.getHours()}:${date.getMinutes()} ${ampm}`;
           return (
             <View style={styles.messageList}>
+              <Text
+                style={{
+                  marginTop: 12,
+                  textAlign: 'center',
+                  color: 'black',
+                  fontSize: 12,
+                }}>
+                {output}
+              </Text>
               {item.mediaUrl ? (
                 <View
                   style={[
@@ -434,6 +466,7 @@ const styles = StyleSheet.create({
   wrapper: {
     flex: 1,
     position: 'relative',
+    backgroundColor: 'white',
   },
   messageList: {
     paddingHorizontal: 16,

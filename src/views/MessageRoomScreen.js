@@ -30,6 +30,7 @@ const MessageRoomScreen = ({route, navigation}) => {
   const [msgDay, setMsgDay] = useState([]);
 
   const talkRef = useRef(true);
+  const isMounted = useRef(false);
 
   const requestCameraPermission = async () => {
     try {
@@ -52,6 +53,8 @@ const MessageRoomScreen = ({route, navigation}) => {
       console.warn(err);
     }
   };
+
+  // console.log(user, userId);
 
   const requestGalleryPermission = async () => {
     try {
@@ -157,16 +160,11 @@ const MessageRoomScreen = ({route, navigation}) => {
     });
   };
 
-  useFocusEffect(
-    useCallback(() => {
-      handleGetTalk();
-      handleHeader();
-      return () => {
-        handleGetTalk();
-        handleHeader();
-      };
-    }, [navigation]),
-  );
+  useEffect(() => {
+    handleGetTalk();
+    handleHeader();
+    isMounted.current = true;
+  }, []);
 
   const openGallery = () => {
     const options = {

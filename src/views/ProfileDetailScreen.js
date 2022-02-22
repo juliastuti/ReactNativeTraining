@@ -1,4 +1,4 @@
-import React, {useContext, useEffect, useState} from 'react';
+import React, {useContext, useEffect, useState, useRef} from 'react';
 import {
   SafeAreaView,
   ScrollView,
@@ -22,6 +22,7 @@ import getClient from '../services/getClient';
 
 const ProfileDetailScreen = ({route, navigation}) => {
   const [profile, setProfile] = useState(null);
+  const unmounted = useRef(false);
 
   const [user] = useContext(AuthContext);
   const {userId} = route.params;
@@ -40,14 +41,15 @@ const ProfileDetailScreen = ({route, navigation}) => {
         }
       })
       .catch(err => console.log(err))
-      .finally(() => console.log('ok'));
+      .finally(() => console.log('done'));
   };
 
   useEffect(() => {
-    navigation.addListener('focus', () => {
-      handleGetUserProfile();
-    });
-  }, [navigation]);
+    handleGetUserProfile();
+    return () => {
+      unmounted.current = true;
+    };
+  }, []);
 
   const userHobby =
     profile &&
@@ -201,7 +203,7 @@ const ProfileDetailScreen = ({route, navigation}) => {
           onPress={() =>
             navigation.navigate('MessageRoomScreen', {
               userId: userId,
-              name: profile.nickname,
+              name: profile.nickname && profile.nickname,
               imgUrl: profile.imageUrl,
             })
           }>

@@ -150,12 +150,14 @@ const MessageScreen = ({navigation}) => {
         },
       })
       .then(res => {
+        console.log(res.data);
         if (res.data.status === 1) {
           setMessage([...res.data.items]);
         } else {
-          alert('No Message');
+          alert(res.data.error.errorMessage);
         }
       })
+      .catch(err => console.log(err))
       .finally(() => {
         setIsLoading(false);
         setIsRefreshed(false);
@@ -187,10 +189,10 @@ const MessageScreen = ({navigation}) => {
       .then(res => {
         if (res.data.status === 1) {
           let newMessage = message.filter(item => {
-            return item.talkId != talkId;
+            return !talkId.includes(item.talkId);
           });
           setMessage(newMessage);
-          getMessage();
+          if (newMessage.length === 0) alert('No Data');
         }
       })
       .catch(err => console.log(err))

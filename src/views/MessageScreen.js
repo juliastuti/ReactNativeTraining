@@ -1,5 +1,6 @@
 import React, {useContext, useEffect, useState} from 'react';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import {useFocusEffect} from '@react-navigation/core';
 import {
   SafeAreaView,
   StyleSheet,
@@ -73,7 +74,11 @@ const MessageScreen = ({navigation}) => {
           <View style={styles.identityWrapper}>
             <Text style={styles.name}>{item.nickname}</Text>
             <Text style={styles.message} numberOfLines={1}>
-              {item.mediaType === 0 ? item.message : item.mediaType === 1 ? "Image" : "Video"}
+              {item.mediaType === 0
+                ? item.message
+                : item.mediaType === 1
+                ? 'Image'
+                : 'Video'}
             </Text>
           </View>
         </View>
@@ -92,7 +97,7 @@ const MessageScreen = ({navigation}) => {
     );
   };
 
-  useEffect(() => {
+  const handleHeader = () => {
     navigation.setOptions({
       headerRight: () => (
         <View>
@@ -130,6 +135,10 @@ const MessageScreen = ({navigation}) => {
         </View>
       ),
     });
+  };
+
+  useEffect(() => {
+    handleHeader();
   }, [toggle, message]);
 
   const getMessage = () => {
@@ -143,13 +152,13 @@ const MessageScreen = ({navigation}) => {
       .then(res => {
         if (res.data.status === 1) {
           setMessage([...res.data.items]);
-          setIsLoading(false);
-          setIsRefreshed(false);
         } else {
-          alert(res.data.error.errorMessage);
-          setIsLoading(false);
-          setIsRefreshed(false);
+          alert('No Message');
         }
+      })
+      .finally(() => {
+        setIsLoading(false);
+        setIsRefreshed(false);
       });
   };
 
@@ -177,15 +186,17 @@ const MessageScreen = ({navigation}) => {
       })
       .then(res => {
         if (res.data.status === 1) {
-          setToggle(false);
-          setIsLoading(false);
-
           let newMessage = message.filter(item => {
             return item.talkId != talkId;
           });
           setMessage(newMessage);
           getMessage();
         }
+      })
+      .catch(err => console.log(err))
+      .finally(() => {
+        setToggle(false);
+        setIsLoading(false);
       });
   };
 

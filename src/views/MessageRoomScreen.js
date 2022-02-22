@@ -27,7 +27,7 @@ const MessageRoomScreen = ({route, navigation}) => {
   const [add, setAdd] = useState(false);
   const [borderMessageId, setBorderMessageId] = useState(0);
   const [howToRequest, setHowToRequest] = useState(0);
-  const [day, setDay] = useState([]);
+  const [msgDay, setMsgDay] = useState([]);
 
   const talkRef = useRef(true);
 
@@ -52,8 +52,6 @@ const MessageRoomScreen = ({route, navigation}) => {
       console.warn(err);
     }
   };
-
-  console.log(user, userId);
 
   const requestGalleryPermission = async () => {
     try {
@@ -102,19 +100,11 @@ const MessageRoomScreen = ({route, navigation}) => {
       borderMessageId,
       howToRequest,
     );
-    console.log(data);
     if (data.status === 0) {
       setAdd(false);
     } else {
       if (data.items) {
-        const talks = data.items.reverse().map((item, i) => {
-          if (day.includes(item.time)) {
-            return Object.assign(item, {day: ''});
-          } else {
-            setDay([...day, item.time]);
-            return Object.assign(item, {day: item.time});
-          }          
-        });
+        const talks = data.items.reverse();
         if (borderMessageId === 0) {
           setTalk(talks);
           setBorderMessageId(talks[talks.length - 1].messageId);
@@ -176,7 +166,6 @@ const MessageRoomScreen = ({route, navigation}) => {
         handleHeader();
       };
     }, [navigation]),
-    console.log('ooke'),
   );
 
   const openGallery = () => {
@@ -215,7 +204,16 @@ const MessageRoomScreen = ({route, navigation}) => {
   const handleNewTalk = async () => {
     const data = await getTalk(user.token, userId, 0, 0);
     if (data.status === 1) {
-      const talks = data.items.reverse();
+      const talks = data.items.reverse().map((item, i) => {
+        const days = item.time.substring(0, 10);
+        if (msgDay.includes(days)) {
+          return Object.assign(item, {day: null});
+        } else {
+          setMsgDay([...msgDay, days]);
+          return Object.assign(item, {day: null});
+        }
+      });
+
       setTalk(talks);
       setBorderMessageId(talks[talks.length - 1].messageId);
       setHowToRequest(1);
@@ -287,6 +285,29 @@ const MessageRoomScreen = ({route, navigation}) => {
       });
   };
 
+  const dateFormatter = dates => {
+    const date = new Date(dates);
+    const monthNames = [
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
+    ];
+
+    const month = monthNames[date.getMonth()];
+    const day = String(date.getDate()).padStart(2, '0');
+    const year = date.getFullYear();
+    return `${day} ${month} ${year}`;
+  };
+
   return (
     <View style={styles.wrapper}>
       {popup && (
@@ -309,28 +330,18 @@ const MessageRoomScreen = ({route, navigation}) => {
         ref={talkRef}
         data={talk}
         keyExtractor={(item, i) => i.toString()}
-        renderItem={({item, i}) => {
-          const monthNames = [
-            'Jan',
-            'Feb',
-            'Mar',
-            'Apr',
-            'May',
-            'Jun',
-            'Jul',
-            'Aug',
-            'Sep',
-            'Oct',
-            'Nov',
-            'Dec',
-          ];
+        renderItem={({item, index}) => {
           const date = new Date(item.time.substring(0, 19));
-          const month = monthNames[date.getMonth()];
-          const day = String(date.getDate()).padStart(2, '0');
-          const year = date.getFullYear();
-          const output = `${day} ${month} ${year}`;
           const ampm = date.getHours() > 12 ? 'PM' : 'AM';
           const newDate = `${date.getHours()}:${date.getMinutes()} ${ampm}`;
+
+          const dayMsg =
+            talk[index === 0 ? index : index - 1].time.substring(0, 10) !==
+              item.time.substring(0, 10) &&
+            dateFormatter(item.time.substring(0, 10));
+
+          console.log(item.time);
+
           return (
             <View style={styles.messageList}>
               <Text
@@ -340,7 +351,9 @@ const MessageRoomScreen = ({route, navigation}) => {
                   color: 'black',
                   fontSize: 12,
                 }}>
-                {output}
+                {index === 0
+                  ? dateFormatter(item.time.substring(0, 10))
+                  : dayMsg}
               </Text>
               {item.mediaUrl ? (
                 <View

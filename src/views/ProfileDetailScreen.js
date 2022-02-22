@@ -38,12 +38,16 @@ const ProfileDetailScreen = ({route, navigation}) => {
         if (res.data.status == 1) {
           setProfile(res.data);
         }
-      });
+      })
+      .catch(err => console.log(err))
+      .finally(() => console.log('ok'));
   };
 
   useEffect(() => {
-    handleGetUserProfile();
-  }, []);
+    navigation.addListener('focus', () => {
+      handleGetUserProfile();
+    });
+  }, [navigation]);
 
   const userHobby =
     profile &&

@@ -7,10 +7,14 @@ import {
   View,
 } from 'react-native';
 
-const Popup = ({children, popup, setPopup}) => {
+const Popup = ({children, popup, setPopup, setToggleCamera}) => {
   return (
     <Modal transparent visible={popup}>
-      <TouchableWithoutFeedback onPress={() => setPopup(!popup)}>
+      <TouchableWithoutFeedback
+        onPress={() => {
+          setPopup(!popup);
+          setToggleCamera(false);
+        }}>
         <View style={styles.wrapper}>
           <View style={{backgroundColor: 'white', padding: 16}}>
             {children}

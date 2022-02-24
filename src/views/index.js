@@ -10,6 +10,7 @@ import EditProfileScreen from './EditProfileScreen';
 import ProfileDetailScreen from './ProfileDetailScreen';
 import PhotoViewerScreen from './PhotoViewerScreen';
 import MessageRoomScreen from './MessageRoomScreen';
+import VideoViewerScreen from './VideoViewerScreen';
 
 export {
   AuthScreen,
@@ -24,4 +25,5 @@ export {
   ProfileDetailScreen,
   PhotoViewerScreen,
   MessageRoomScreen,
+  VideoViewerScreen,
 };

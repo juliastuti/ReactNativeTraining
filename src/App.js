@@ -18,6 +18,7 @@ import {
   ProfileDetailScreen,
   PhotoViewerScreen,
   MessageRoomScreen,
+  VideoViewerScreen,
 } from './views';
 import {AuthReducer} from './reducers';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -151,6 +152,11 @@ const App = () => {
               <Stack.Screen
                 name="PhotoViewerScreen"
                 component={PhotoViewerScreen}
+                options={{headerShown: false}}
+              />
+              <Stack.Screen
+                name="VideoViewerScreen"
+                component={VideoViewerScreen}
                 options={{headerShown: false}}
               />
               <Stack.Screen

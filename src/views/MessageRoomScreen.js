@@ -8,14 +8,13 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import React, {useEffect, useContext, useState, useCallback} from 'react';
+import React, {useEffect, useContext, useState, useRef} from 'react';
 import {CustomChatControl, Popup} from '../components/molecules';
 import {AuthContext} from '../context';
 import getClient from '../services/getClient';
 import {CustomButton} from '../components/atoms';
 import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
-import {useFocusEffect} from '@react-navigation/core';
-import {useRef} from 'react';
+import Video from 'react-native-video';
 
 const MessageRoomScreen = ({route, navigation}) => {
   const {userId, name, imgUrl} = route.params;
@@ -25,6 +24,7 @@ const MessageRoomScreen = ({route, navigation}) => {
   const [typeTalk, setTypeTalk] = useState('');
   const [popup, setPopup] = useState(false);
   const [add, setAdd] = useState(false);
+  const [toggleCamera, setToggleCamera] = useState(false);
   const [borderMessageId, setBorderMessageId] = useState(0);
   const [howToRequest, setHowToRequest] = useState(0);
   const [msgDay, setMsgDay] = useState([]);
@@ -164,25 +164,26 @@ const MessageRoomScreen = ({route, navigation}) => {
     handleGetTalk();
     handleHeader();
     isMounted.current = true;
+    talkRef.current.scrollToEnd({animating: true});
   }, []);
 
   const openGallery = () => {
     const options = {
-      mediaType: 'photo',
+      mediaType: 'mixed',
       quality: 1,
     };
 
     launchImageLibrary(options, res => {
-      console.log(res);
       if (res.assets) {
-        handleSendImage(res.assets[0]);
+        console.log(res.assets[0]);
+        handleSendMedia(res.assets[0]);
       }
     });
   };
 
   const openCamera = () => {
     const options = {
-      mediaType: 'photo',
+      mediaType: 'image',
       quality: 1,
     };
 
@@ -193,7 +194,26 @@ const MessageRoomScreen = ({route, navigation}) => {
       launchCamera(options, res => {
         if (res.assets) {
           console.log(res.assets[0]);
-          handleSendImage(res.assets[0]);
+          handleSendMedia(res.assets[0]);
+        }
+      });
+    }
+  };
+
+  const openCameraVideo = () => {
+    const options = {
+      mediaType: 'video',
+      quality: 1,
+    };
+
+    const storagePermission = requestGalleryPermission();
+
+    const cameraPermission = requestCameraPermission();
+    if (cameraPermission && storagePermission) {
+      launchCamera(options, res => {
+        if (res.assets) {
+          console.log(res.assets[0]);
+          handleSendMedia(res.assets[0]);
         }
       });
     }
@@ -241,18 +261,19 @@ const MessageRoomScreen = ({route, navigation}) => {
     }
   };
 
-  const handleSendImage = image => {
-    const url = 'MediaCtrl/ImageUpload';
+  const handleSendMedia = media => {
+    const url = `MediaCtrl/${media.bitrate ? 'VideoUpload' : 'ImageUpload'}`;
     const headers = {
       Accept: 'application/json',
       'Content-Type': 'application/x-www-form-urlencoded',
       'Content-Length': 82,
     };
     const data = new FormData();
+
     data.append('data', {
-      uri: Platform.OS === 'ios' ? image.uri.replace('file://', '') : image.uri,
-      name: image.fileName,
-      type: image.type,
+      uri: Platform.OS === 'ios' ? media.uri.replace('file://', '') : media.uri,
+      name: media.fileName,
+      type: media.type,
     });
 
     getClient
@@ -264,23 +285,40 @@ const MessageRoomScreen = ({route, navigation}) => {
         headers: headers,
       })
       .then(res => {
+        console.log('response', res.data);
         if (res.data.status === 1) {
+          let params;
+          if (res.data.videoId) {
+            params = {
+              access_token: user.token,
+              to_user_id: userId,
+              video_id: res.data.videoId,
+            };
+          } else {
+            params = {
+              access_token: user.token,
+              to_user_id: userId,
+              image_id: res.data.imageId,
+            };
+          }
           getClient
             .get('TalkCtrl/SendMessage', {
-              params: {
-                access_token: user.token,
-                to_user_id: userId,
-                image_id: res.data.imageId,
-              },
+              params,
             })
             .then(result => {
+              console.log(result.data);
               if (result.data.status === 1) {
                 setAdd(true);
                 handleNewTalk();
               }
-            });
+            })
+            .catch(err => console.log(err));
+        } else {
+          alert(res.data.error.errorMessage);
+          setPopup(false);
         }
-      });
+      })
+      .catch(err => console.log(err));
   };
 
   const dateFormatter = dates => {
@@ -309,18 +347,44 @@ const MessageRoomScreen = ({route, navigation}) => {
   return (
     <View style={styles.wrapper}>
       {popup && (
-        <Popup popup={popup} setPopup={setPopup}>
+        <Popup
+          popup={popup}
+          setToggleCamera={setToggleCamera}
+          setPopup={setPopup}>
           <>
-            <CustomButton
-              theme="outline-primary"
-              title="Gallery"
-              onPress={() => openGallery()}
-            />
-            <CustomButton
-              theme="outline-primary"
-              title="Camera"
-              onPress={() => openCamera()}
-            />
+            {!toggleCamera && (
+              <>
+                <CustomButton
+                  theme="outline-primary"
+                  title="Gallery"
+                  onPress={() => openGallery()}
+                />
+                <CustomButton
+                  theme="outline-primary"
+                  title="Camera"
+                  onPress={() => setToggleCamera(true)}
+                />
+              </>
+            )}
+
+            {toggleCamera && (
+              <View style={{flexDirection: 'row'}}>
+                <View style={{flex: 1, marginRight: 8}}>
+                  <CustomButton
+                    theme="outline-primary"
+                    title="Take Image"
+                    onPress={() => openCamera()}
+                  />
+                </View>
+                <View style={{flex: 1}}>
+                  <CustomButton
+                    theme="outline-primary"
+                    title="Take Video"
+                    onPress={() => openCameraVideo()}
+                  />
+                </View>
+              </View>
+            )}
           </>
         </Popup>
       )}
@@ -337,8 +401,6 @@ const MessageRoomScreen = ({route, navigation}) => {
             talk[index === 0 ? index : index - 1].time.substring(0, 10) !==
               item.time.substring(0, 10) &&
             dateFormatter(item.time.substring(0, 10));
-
-          console.log(item.time);
 
           return (
             <View style={styles.messageList}>
@@ -374,9 +436,13 @@ const MessageRoomScreen = ({route, navigation}) => {
                   )}
                   <TouchableOpacity
                     onPress={() =>
-                      navigation.navigate('PhotoViewerScreen', {
-                        imgUrl: item.mediaUrl,
-                      })
+                      item.mediaType === 1
+                        ? navigation.navigate('PhotoViewerScreen', {
+                            imgUrl: item.mediaUrl,
+                          })
+                        : navigation.navigate('VideoViewerScreen', {
+                            vidUrl: item.mediaUrl,
+                          })
                     }>
                     <View
                       style={[
@@ -391,7 +457,22 @@ const MessageRoomScreen = ({route, navigation}) => {
                           ? {backgroundColor: 'blue'}
                           : {backgroundColor: 'green'},
                       ]}>
-                      <Image style={{flex: 1}} source={{uri: item.mediaUrl}} />
+                      {item.mediaType === 1 ? (
+                        <Image
+                          style={{flex: 1}}
+                          source={{uri: item.mediaUrl}}
+                        />
+                      ) : (
+                        <View style={{flex: 1}}>
+                          <Video
+                            style={{flex: 1}}
+                            source={{
+                              uri: item.mediaUrl,
+                            }}
+                            resizeMode="cover"
+                          />
+                        </View>
+                      )}
                     </View>
                   </TouchableOpacity>
                   {item.messageKind === 1 && (
@@ -489,5 +570,12 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     marginVertical: 8,
     maxWidth: 200,
+  },
+  backgroundVideo: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    bottom: 0,
+    right: 0,
   },
 });

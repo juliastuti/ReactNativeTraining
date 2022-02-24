@@ -192,7 +192,7 @@ const MessageScreen = ({navigation}) => {
             return !talkId.includes(item.talkId);
           });
           setMessage(newMessage);
-          if (newMessage.length === 0) alert('No Data');
+          if (newMessage.length === 0) alert('No Message');
         }
       })
       .catch(err => console.log(err))
